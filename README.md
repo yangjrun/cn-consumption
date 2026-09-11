@@ -2,6 +2,8 @@
 
 面向中国普通居民的个人收入、消费与资产税费模拟器。所有结果严格区分直接税、强制性社会缴费、价格内含税与无法归属的经济成本。
 
+线上地址：[`https://tax.foxapi.uk/`](https://tax.foxapi.uk/)
+
 ## 本地运行
 
 ```bash
@@ -32,7 +34,10 @@ npm run build
 - 自定义城市、收入和缴费情景比较
 - 2015、2020、2026 有限可比历史税制快照；2030 不预测未知规则
 - “100 元收入旅行图”、税费组成、消费排名、可识别税负日
-- 保守／中性／广义观察口径、三种界面密度与深色模式
+- 保守／中性两档估计口径；单位用工成本与附加税费放入扩展观察
+- 版本化年度模型：12 个月工资、奖金月份、固定月度消费与房车／投资／一次性消费事件
+- 五段主链路：三步快速建模 → 我的年度 → 场景试算 → 对比推演 → 年度报告
+- 场景写入前影响预览、显式确认、重复防护与即时撤销
 - 本地保存、URL 分享、PNG 长图与浏览器打印／PDF
 - 官方政策来源、有效期、征税环节、纳税人和可信度字段
 - 按年份筛选适用规则
@@ -43,6 +48,30 @@ npm run build
 npm test
 npm run build
 ```
+
+界面验收重点视口：1440×900、1280×720、390×844。旧 `view=lab/day/assets/investment/life/compare` 链接会自动映射到新的场景或推演工作台。
+
+## Cloudflare 部署
+
+项目通过 Cloudflare Workers Static Assets 发布，Worker 名称为 `cn-consumption`，生产分支为 `master`。Cloudflare Workers Builds 使用以下配置：
+
+- Root directory：仓库根目录
+- Build command：`npm run build`
+- Deploy command：`npm run deploy`
+- Production branch：`master`
+
+本地应急部署需要先登录 Wrangler，再执行：
+
+```bash
+npm ci
+npm test
+npm run build
+npm run deploy
+```
+
+`wrangler.jsonc` 会将 `dist` 作为 SPA 静态资源发布，并把 `tax.foxapi.uk` 绑定为 Custom Domain。Cloudflare API Token、`.dev.vars` 和其他环境凭据不得提交到仓库。
+
+生产故障时，在 Cloudflare 控制台的 Worker **Version History** 中选择上一个健康版本回滚；源码仍以 GitHub `master` 的提交记录为准。
 
 ## 方法论边界
 

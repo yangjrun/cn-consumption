@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { calculateProfile, money } from '../lib/calculations'
 import type { CalculatorProfile } from '../types'
 import { Approx } from './Marks'
 import { YearComparison } from './YearComparison'
+import { PageIntro } from './PageShell'
 
 interface Scenario {
   name: string
@@ -28,12 +29,20 @@ const scenarioFrom = (profile: CalculatorProfile, name: string): Scenario => ({
   spendingScale: 100
 })
 
-export function ComparePage({ profile }: { profile: CalculatorProfile }) {
-  const [a, setA] = useState<Scenario>(() => scenarioFrom(profile, '当前情景'))
-  const [b, setB] = useState<Scenario>(() => ({ ...scenarioFrom(profile, '对比情景'), city: '自定义城市', salary: 25_000, spendingScale: 120 }))
-  const results = useMemo(() => [a, b].map((scene) => {
+export function ComparePage({ profile, onUseScenario }: { profile: CalculatorProfile; onUseScenario?: (profile: CalculatorProfile, label: string) => void }) {
+  const restore = (key: 'a' | 'b', fallback: Scenario) => {
+    try {
+      const saved = sessionStorage.getItem(`taxlens.compare.${key}.v1`)
+      return saved ? { ...fallback, ...JSON.parse(saved) } as Scenario : fallback
+    } catch { return fallback }
+  }
+  const [a, setA] = useState<Scenario>(() => restore('a', scenarioFrom(profile, '当前情景')))
+  const [b, setB] = useState<Scenario>(() => restore('b', { ...scenarioFrom(profile, '对比情景'), city: '自定义城市', salary: 25_000, spendingScale: 120 }))
+  useEffect(() => { try { sessionStorage.setItem('taxlens.compare.a.v1', JSON.stringify(a)) } catch { /* session draft is optional */ } }, [a])
+  useEffect(() => { try { sessionStorage.setItem('taxlens.compare.b.v1', JSON.stringify(b)) } catch { /* session draft is optional */ } }, [b])
+  const toProfile = (scene: Scenario): CalculatorProfile => {
     const socialTotal = scene.personalSocialRate
-    const p: CalculatorProfile = {
+    return {
       ...profile,
       city: scene.city,
       monthlySalary: scene.salary,
@@ -52,13 +61,19 @@ export function ComparePage({ profile }: { profile: CalculatorProfile }) {
       employerHousingFundRate: scene.employerFundRate,
       expenses: Object.fromEntries(Object.entries(profile.expenses).map(([key, value]) => [key, value * scene.spendingScale / 100])) as CalculatorProfile['expenses']
     }
-    return calculateProfile(p, 'neutral')
+  }
+  const results = useMemo(() => [a, b].map((scene) => {
+    return calculateProfile(toProfile(scene), 'neutral')
   }), [a, b, profile])
   const maxCost = Math.max(...results.map((item) => item.employerCost), 1)
 
   return (
     <div className="compare-page">
-      <header className="page-intro"><span className="kicker">自定义情景对比</span><h1>不是“哪个城市税高”，<br />而是条件如何改变结果。</h1><p>城市社保缴费基数、比例和政策会调整。这里不内置未经逐条核验的“城市默认税负”，所有差异都由你明确输入。</p></header>
+      <PageIntro
+        stage={{ index: '03', label: '推演对比' }}
+        title={<>不是“哪个城市税高”，<br />而是条件如何改变结果。</>}
+        lead="城市社保缴费基数、比例和政策会调整。这里不内置未经逐条核验的“城市默认税负”，所有差异都由你明确输入。"
+      ><div className="scenario-sync-row"><button className="text-button" onClick={() => setA(scenarioFrom(profile, '当前情景'))}>从我的年度重新同步 A</button>{onUseScenario && <button className="primary-button" onClick={() => onUseScenario(toProfile(a), '用情景 A 替换年度模型')}>用 A 情景替换我的模型</button>}</div></PageIntro>
       <section className="compare-editors"><ScenarioEditor value={a} onChange={setA} index="A" /><ScenarioEditor value={b} onChange={setB} index="B" /></section>
       <section className="compare-result">
         <div className="compare-result-head"><div><span className="kicker">同口径比较</span><h2>{a.name} vs {b.name}</h2></div><p>基于 {profile.year} 年个税与流转税规则</p></div>

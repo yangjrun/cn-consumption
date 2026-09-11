@@ -3,6 +3,7 @@ import taxRules from '../data/tax_rules.json'
 import type { TaxRule } from '../types'
 import { ConfidenceMark } from './Marks'
 import { rulesForYear } from '../lib/rules'
+import { PageIntro } from './PageShell'
 
 export function RulesPage() {
   const rules = taxRules as TaxRule[]
@@ -10,11 +11,11 @@ export function RulesPage() {
   const activeRules = rulesForYear(rules, year)
   return (
     <div className="rules-page">
-      <header className="page-intro">
-        <span className="kicker">规则与来源</span>
-        <h1>每一个数字，都应该能追溯。</h1>
-        <p>税率只采用财政部、国家税务总局、全国人大及政府官方网站。规则以生效区间组织，便于未来扩展年度对比。</p>
-      </header>
+      <PageIntro
+        stage={{ index: '05', label: '规则依据' }}
+        title="每一个数字，都应该能追溯。"
+        lead="税率只采用财政部、国家税务总局、全国人大及政府官方网站。规则以生效区间组织，便于未来扩展年度对比。"
+      />
 
       <section className="rules-summary">
         <div><strong>{rules.length}</strong><span>条已核验规则</span></div>

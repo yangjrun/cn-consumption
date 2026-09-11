@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { initialExpenses } from '../data/expenseMeta'
 import type { CalculatorProfile } from '../types'
-import { annualBonusIncomeTax, annualIncomeTax, calculateProfile, incomeJourneyPerHundred, isAnnualBonusSeparateTaxAvailable, vatFromGross } from './calculations'
+import { annualBonusCliffWarning, annualBonusIncomeTax, annualIncomeTax, calculateProfile, incomeJourneyPerHundred, isAnnualBonusSeparateTaxAvailable, monthlySocialInsuranceBase, monthlyTaxSchedule, surchargeFromTurnover, surchargeRateForTier, vatFromGross, vatOnConsumptionTax } from './calculations'
 
 const profile: CalculatorProfile = {
   year: 2026,
@@ -23,6 +23,7 @@ const profile: CalculatorProfile = {
   employerInjuryRate: .002,
   employerHousingFundRate: .07,
   fuelPrice: 8.1,
+  cityTier: 'urban',
   expenses: initialExpenses
 }
 
@@ -210,5 +211,153 @@ describe('上海 2026 社保缴费基数', () => {
     const high = calculateProfile({ ...profile, socialInsuranceBase: 50_000 }, 'conservative')
     expect(low.personalSocial).toBeCloseTo((7_460 * 6 + 7_546 * 6) * .105, 2)
     expect(high.personalSocial).toBeCloseTo((37_302 * 6 + 37_731 * 6) * .105, 2)
+  })
+
+  it('月缴费基数在 7 月切换到新的社保年度', () => {
+    const floored = { ...profile, socialInsuranceBase: 5_000 }
+    expect(monthlySocialInsuranceBase(floored, 1)).toBe(7_460)
+    expect(monthlySocialInsuranceBase(floored, 6)).toBe(7_460)
+    expect(monthlySocialInsuranceBase(floored, 7)).toBe(7_546)
+    expect(monthlySocialInsuranceBase(floored, 12)).toBe(7_546)
+
+    const capped = { ...profile, socialInsuranceBase: 50_000 }
+    expect(monthlySocialInsuranceBase(capped, 6)).toBe(37_302)
+    expect(monthlySocialInsuranceBase(capped, 7)).toBe(37_731)
+
+    // 未启用上下限时按申报基数，全年不变
+    const raw = { ...floored, applyCitySocialBaseLimits: false }
+    expect(monthlySocialInsuranceBase(raw, 7)).toBe(5_000)
+  })
+})
+
+describe('12 个月税费节奏', () => {
+  it('每月预扣个税之和等于全年工资个税', () => {
+    const result = calculateProfile(profile, 'neutral')
+    const schedule = monthlyTaxSchedule(profile, result)
+    const summed = schedule.reduce((sum, point) => sum + point.salaryIncomeTax, 0)
+
+    expect(schedule).toHaveLength(12)
+    expect(summed).toBeCloseTo(result.salaryIncomeTax, 6)
+    expect(schedule[11].cumulativeIncomeTax).toBeCloseTo(result.salaryIncomeTax, 6)
+  })
+
+  it('呈现累计预扣法的真实节奏，而不是 12 个相同的均值', () => {
+    const result = calculateProfile(profile, 'neutral')
+    const schedule = monthlyTaxSchedule(profile, result)
+    const taxes = schedule.map((point) => point.salaryIncomeTax)
+
+    // 关键回归：修复前 12 个月完全相同，图表零信息量
+    expect(new Set(taxes.map((value) => value.toFixed(2))).size).toBeGreaterThan(1)
+    // 累计应纳税所得额单调递增，故预扣税额非递减
+    for (let index = 1; index < taxes.length; index += 1) {
+      expect(taxes[index]).toBeGreaterThanOrEqual(taxes[index - 1] - 1e-9)
+    }
+    // 年初处于最低档，年末已跨档
+    expect(taxes[0]).toBeCloseTo(235.5, 2)
+    expect(taxes[11]).toBeCloseTo(785, 2)
+    expect(taxes[0]).toBeLessThan(taxes[11])
+  })
+
+  it('奖金税额集中计入 12 月，且不改动其他月份', () => {
+    const withBonus = { ...profile, annualBonus: 36_000 }
+    const result = calculateProfile(withBonus, 'neutral')
+    const schedule = monthlyTaxSchedule(withBonus, result)
+
+    expect(schedule.slice(0, 11).every((point) => point.bonusTax === 0)).toBe(true)
+    expect(schedule[11].bonusTax).toBeCloseTo(result.annualBonusIncomeTax, 6)
+    expect(schedule[11].total - schedule[10].total).toBeCloseTo(
+      result.annualBonusIncomeTax + schedule[11].salaryIncomeTax - schedule[10].salaryIncomeTax,
+      6
+    )
+  })
+
+  it('月度合计只含税，不含社保与公积金', () => {
+    const result = calculateProfile(profile, 'neutral')
+    const schedule = monthlyTaxSchedule(profile, result)
+
+    schedule.forEach((point) => {
+      expect(point.total).toBeCloseTo(point.salaryIncomeTax + point.embeddedTax + point.bonusTax, 6)
+    })
+    // 全年月度合计 = 工资个税 + 消费内含税（不含奖金时）
+    const annualTotal = schedule.reduce((sum, point) => sum + point.total, 0)
+    expect(annualTotal).toBeCloseTo(result.salaryIncomeTax + result.vatEstimate + result.consumptionTaxEstimate, 4)
+  })
+
+  it('零收入时返回全零且不产生负数', () => {
+    const noIncome = { ...profile, monthlySalary: 0, annualBonus: 0, socialInsuranceBase: 0, housingFundBase: 0 }
+    const result = calculateProfile(noIncome, 'conservative')
+    const schedule = monthlyTaxSchedule(noIncome, result)
+
+    schedule.forEach((point) => {
+      expect(point.salaryIncomeTax).toBe(0)
+      expect(point.total).toBeGreaterThanOrEqual(0)
+    })
+  })
+})
+
+describe('附加税费与税上税（重复征税）', () => {
+  it('城建税按所在地分档，附加合计为 12% / 10% / 6%', () => {
+    expect(surchargeRateForTier('urban')).toBeCloseTo(0.12, 6)
+    expect(surchargeRateForTier('county')).toBeCloseTo(0.10, 6)
+    expect(surchargeRateForTier('other')).toBeCloseTo(0.06, 6)
+  })
+
+  it('附加税费以（增值税 + 消费税）为计税依据', () => {
+    expect(surchargeFromTurnover(43.14, 76, 'urban')).toBeCloseTo(119.14 * 0.12, 2)
+    expect(surchargeFromTurnover(0, 0, 'urban')).toBe(0)
+  })
+
+  it('增值税中对消费税征收的部分 = 消费税额 × 增值税率', () => {
+    expect(vatOnConsumptionTax(76, 0.13)).toBeCloseTo(9.88, 2)
+    expect(vatOnConsumptionTax(150, 0.13)).toBeCloseTo(19.5, 2)
+    expect(vatOnConsumptionTax(0, 0.13)).toBe(0)
+  })
+
+  it('附加税费与税上税单列，不并入可识别税费', () => {
+    const result = calculateProfile(profile, 'neutral')
+    expect(result.identifiableTax).toBeCloseTo(result.incomeTax + result.vatEstimate + result.consumptionTaxEstimate, 2)
+    expect(result.cascadedTax).toBeCloseTo(result.identifiableTax + result.surchargeEstimate, 2)
+    expect(result.surchargeEstimate).toBeGreaterThan(0)
+    expect(result.taxOnTaxEstimate).toBeGreaterThanOrEqual(result.surchargeEstimate)
+  })
+
+  it('附加税费等于逐项之和，且费率取自所在地档次', () => {
+    const result = calculateProfile(profile, 'conservative')
+    const summed = result.expenseTaxes.reduce((sum, item) => sum + item.surcharge, 0)
+    expect(result.surchargeEstimate).toBeCloseTo(summed, 2)
+    expect(result.surchargeRate).toBeCloseTo(0.12, 6)
+  })
+
+  it('县城和镇口径的附加税费低于市区', () => {
+    const urban = calculateProfile(profile, 'neutral')
+    const county = calculateProfile({ ...profile, cityTier: 'county' }, 'neutral')
+    expect(county.surchargeEstimate).toBeLessThan(urban.surchargeEstimate)
+    expect(county.surchargeEstimate / urban.surchargeEstimate).toBeCloseTo(10 / 12, 4)
+  })
+
+  it('汽油场景的附加税费与税上税可复算', () => {
+    const fuelProfile = { ...profile, expenses: { ...profile.expenses, fuel: 810 } }
+    const result = calculateProfile(fuelProfile, 'conservative')
+    const fuel = result.expenseTaxes.find((item) => item.key === 'fuel')!
+    expect(fuel.consumptionTax).toBeCloseTo(1_824, 2)
+    expect(fuel.vat).toBeCloseTo(vatFromGross(9_720, 0.13), 2)
+    expect(fuel.surcharge).toBeCloseTo((fuel.vat + fuel.consumptionTax) * 0.12, 2)
+    expect(fuel.taxOnTax).toBeCloseTo(vatOnConsumptionTax(fuel.consumptionTax, 0.13) + fuel.surcharge, 2)
+  })
+})
+
+describe('年终奖临界点', () => {
+  it('跨过 36000 元后提示多缴税额', () => {
+    expect(annualBonusCliffWarning(36_000)).toBeNull()
+    const warning = annualBonusCliffWarning(36_100)
+    expect(warning).not.toBeNull()
+    expect(warning!.cliff).toBe(36_000)
+    expect(warning!.extra).toBeCloseTo(annualBonusIncomeTax(36_100) - annualBonusIncomeTax(36_000), 2)
+    expect(warning!.extra).toBeGreaterThan(2_000)
+  })
+
+  it('远离临界点时不再提示', () => {
+    expect(annualBonusCliffWarning(50_000)).toBeNull()
+    expect(annualBonusCliffWarning(0)).toBeNull()
   })
 })

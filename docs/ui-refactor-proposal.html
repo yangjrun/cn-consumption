@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>税镜 · 界面重构设计方案 v1</title>
+<style>
+  :root {
+    --paper: #f3f0e8;
+    --paper-raised: #faf8f2;
+    --paper-deep: #e8e3d8;
+    --ink: #171915;
+    --ink-soft: #555950;
+    --ink-faint: #6b6f66;
+    --line: #cfc9bc;
+    --line-strong: #a8a195;
+    --tax: #bd4b36;
+    --social: #316b70;
+    --gold: #9a7332;
+    --value: #68795c;
+    --font-display: 'Noto Serif SC', 'Songti SC', serif;
+    --font-body: 'Noto Sans SC', 'Microsoft YaHei UI', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  }
+  .wrap { width: min(1080px, 100%); margin: 0 auto; padding: 56px 32px 120px; }
+  h1, h2, h3 { text-wrap: balance; }
+  h1 { font-family: var(--font-display); font-size: 46px; line-height: 1.15; letter-spacing: -.03em; margin: 0 0 18px; font-weight: 600; }
+  h2 { font-family: var(--font-display); font-size: 28px; line-height: 1.25; margin: 0 0 8px; font-weight: 600; }
+  h3 { font-size: 16px; margin: 0 0 10px; font-weight: 600; }
+  p { margin: 0 0 14px; }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); }
+  .lede { font-size: 17px; color: var(--ink-soft); max-width: 720px; }
+  section { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--ink); }
+  section > .kicker { display: block; margin-bottom: 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-bottom: 26px; margin-bottom: 30px; border-bottom: 1px solid var(--ink); font-size: 13px; color: var(--ink-soft); }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin-top: 32px; }
+  .summary > div { padding: 20px 22px; border-right: 1px solid var(--line); }
+  .summary > div:first-child { padding-left: 0; }
+  .summary > div:last-child { border-right: 0; padding-right: 0; }
+  .summary h3 { font-family: var(--font-display); font-size: 19px; margin-bottom: 12px; }
+  .summary ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-soft); }
+  .summary li { margin-bottom: 7px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 13px; }
+  th { text-align: left; font-weight: 600; font-size: 12px; color: var(--ink-faint); padding: 10px 12px; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+  td { padding: 13px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  td:first-child { color: var(--ink); font-weight: 600; }
+  td code { font-family: var(--font-mono); font-size: 12px; color: var(--tax); background: var(--paper-deep); padding: 1px 5px; border-radius: 3px; }
+  .sev { display: inline-block; font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .sev-p0 { background: #f6d9d2; color: #7d2a1a; }
+  .sev-p1 { background: #f2e3c4; color: #6b4a12; }
+  .sev-p2 { background: #dde5d8; color: #3d4d34; }
+
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; }
+  .principle { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .principle span { font-family: var(--font-mono); font-size: 11px; color: var(--tax); }
+  .principle h3 { margin: 9px 0 8px; font-size: 15px; }
+  .principle p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+  .scale { margin-top: 24px; border-top: 1px solid var(--line); }
+  .scale-row { display: grid; grid-template-columns: 130px 1fr 150px; gap: 16px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .scale-row .name { font-family: var(--font-mono); font-size: 12px; }
+  .scale-row .demo { color: var(--ink); line-height: 1.2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .scale-row .note { font-size: 12px; color: var(--ink-faint); text-align: right; }
+  .scale-row.is-bad .note { color: var(--tax); }
+
+  .ia { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 26px; }
+  .ia-col { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+  .ia-col h3 { font-size: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .ia-col ul { list-style: none; margin: 0; padding: 0; }
+  .ia-col li { padding: 8px 0; font-size: 13px; border-bottom: 1px dashed var(--line); color: var(--ink-soft); }
+  .ia-col li:last-child { border-bottom: 0; }
+  .ia-col li b { color: var(--ink); }
+  .ia-col li small { display: block; color: var(--ink-faint); font-size: 12px; }
+  .ia-col.is-new li b { color: var(--tax); }
+
+  .pages { margin-top: 26px; }
+  .page-card { display: grid; grid-template-columns: 190px 1fr; gap: 26px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .page-card h3 { font-family: var(--font-display); font-size: 19px; margin: 0; }
+  .page-card h3 small { display: block; font-family: var(--font-body); font-size: 12px; font-weight: 400; color: var(--ink-faint); margin-top: 5px; }
+  .page-card ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-soft); }
+  .page-card li { margin-bottom: 7px; }
+  .page-card li b { color: var(--ink); }
+
+  .roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; }
+  .phase { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .phase__head { padding: 14px 18px; background: var(--paper-deep); border-bottom: 1px solid var(--line); }
+  .phase__head b { display: block; font-size: 14px; }
+  .phase__head span { font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); }
+  .phase ul { margin: 0; padding: 16px 18px 18px 34px; font-size: 13px; color: var(--ink-soft); }
+  .phase li { margin-bottom: 8px; }
+  .phase--p0 { border-color: var(--tax); }
+  .phase--p0 .phase__head { background: #f6d9d2; }
+
+  .checklist { margin-top: 24px; }
+  .checklist li { list-style: none; position: relative; padding: 9px 0 9px 28px; border-bottom: 1px dashed var(--line); font-size: 13px; color: var(--ink-soft); }
+  .checklist li::before { content: ''; position: absolute; left: 0; top: 15px; width: 13px; height: 13px; border: 1px solid var(--line-strong); border-radius: 3px; }
+  .checklist { padding-left: 0; margin-left: 0; }
+
+  .callout { margin-top: 24px; padding: 18px 22px; background: var(--paper-raised); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; }
+  .callout b { display: block; margin-bottom: 6px; font-size: 14px; }
+  .callout p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+  footer { margin-top: 70px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-faint); }
+  @media (max-width: 780px) {
+    .wrap { padding: 36px 18px 80px; }
+    h1 { font-size: 32px; }
+    .summary, .principles, .ia, .roadmap { grid-template-columns: 1fr; }
+    .summary > div { padding: 16px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+    .page-card { grid-template-columns: 1fr; gap: 12px; }
+    .scale-row { grid-template-columns: 110px 1fr; }
+    .scale-row .note { grid-column: 2; text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="kicker">界面重构设计方案 · v1</span>
+  <h1>税镜:把编辑气质留下来,<br />把交互换成用户熟悉的样子。</h1>
+  <p class="lede">本次重构只动界面层,不触碰 <code style="font-family:var(--font-mono);font-size:13px;">src/lib/calculations.ts</code> 的计算逻辑与 <code style="font-family:var(--font-mono);font-size:13px;">tax_rules.json</code> 的税则数据。目标是:同样的数字,更好的可读性、更低的认知负荷、更顺的操作路径。</p>
+
+  <div class="meta">
+    <span><b>范围</b> 9 个页面 + 全局导航 + 参数面板</span>
+    <span><b>原则</b> 美观不减、易用为先</span>
+    <span><b>风险</b> 零业务逻辑变更</span>
+    <span><b>基准</b> 2026-09-11 代码状态</span>
+  </div>
+
+  <div class="summary">
+    <div>
+      <h3>保留</h3>
+      <ul>
+        <li>衬线标题 + 纸张质感 + 等宽数字的编辑气质</li>
+        <li>四级可信度标记(● ◐ △ ?)</li>
+        <li>「拆不出来就留白」的方法论表达</li>
+        <li>保守 / 中性 / 广义三口径结构</li>
+      </ul>
+    </div>
+    <div>
+      <h3>重做</h3>
+      <ul>
+        <li>字号阶梯(当前最小 6px)</li>
+        <li>文字对比度(当前 3.0:1)</li>
+        <li>导航信息架构(9 项平铺)</li>
+        <li>参数面板(30+ 项单页堆叠)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>不动</h3>
+      <ul>
+        <li>个税与增值税计算逻辑</li>
+        <li>税率规则与来源数据</li>
+        <li>URL 分享 / 本地存储机制</li>
+        <li>方法论边界与免责表述</li>
+      </ul>
+    </div>
+  </div>
+
+  <section>
+    <span class="kicker">01 · 现状诊断</span>
+    <h2>十个具体问题,按严重度排序</h2>
+    <p class="lede">逐条给出代码证据,便于直接定位修改点。</p>
+    <table>
+      <thead>
+        <tr><th>问题</th><th>证据</th><th>影响</th><th>严重度</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>字号低于可读下限</td>
+          <td><code>styles.css</code> 中 6px–10px 字号超过 40 处,如 <code>.report-footer</code> 6px、<code>.metric__subline</code> 8px、<code>.rules-row small</code> 9px</td>
+          <td>中文在 10px 以下几乎无法辨读,是所有用户都会遇到的问题</td>
+          <td><span class="sev sev-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>辅助文字对比度不足</td>
+          <td><code>--ink-faint: #85897f</code> 叠在 <code>--paper: #f3f0e8</code> 上约 3.0:1</td>
+          <td>低于 WCAG AA 正文 4.5:1 要求;弱视、强光环境下不可读</td>
+          <td><span class="sev sev-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>口径切换器语义不明</td>
+          <td>顶栏三个裸按钮「保守 / 中性 / 广义」,无标签、无解释</td>
+          <td>它决定页面上每一个数字的口径,却是最容易被忽略的控件</td>
+          <td><span class="sev sev-p0">P0</span></td>
+        </tr>
+        <tr>
+          <td>参数面板是表单墙</td>
+          <td><code>ProfilePanel.tsx</code> 单页承载收入、基数、9 项比例、17 类消费,合计 30+ 输入项</td>
+          <td>找不到字段、改完不知道影响了什么、无填写进度</td>
+          <td><span class="sev sev-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>导航无分组且有重复入口</td>
+          <td>顶栏 9 项平铺;导航「账单」与头部按钮「生成账单」指向同一页面</td>
+          <td>认知负荷高;移动端需横向滚动;重复入口造成困惑</td>
+          <td><span class="sev sev-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>首屏无主次、无引导</td>
+          <td><code>Dashboard.tsx</code> 首屏并列 6 个指标卡 + 大标题</td>
+          <td>新用户不知道该先看哪个数字、下一步做什么</td>
+          <td><span class="sev sev-p1">P1</span></td>
+        </tr>
+        <tr>
+          <td>图表缺乏无障碍语义</td>
+          <td>环形图用 <code>conic-gradient</code>、月柱用 <code>div</code> 高度,无 SVG、无 <code>aria</code> 数据表</td>
+          <td>屏幕阅读器完全无法获取图表数据</td>
+          <td><span class="sev sev-p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>图表配色对色盲不友好</td>
+          <td>税 <code>#bd4b36</code> / 估算 <code>#9a7332</code> / 税浅 <code>#ddb09f</code> 三者色相接近</td>
+          <td>红绿色觉障碍用户难以区分图例</td>
+          <td><span class="sev sev-p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>视图设置可发现性低</td>
+          <td>密度 / 深色 / 打印藏在右下角 48px 浮动「视图」按钮内</td>
+          <td>功能存在但用户找不到</td>
+          <td><span class="sev sev-p2">P2</span></td>
+        </tr>
+        <tr>
+          <td>数字输入缺少反馈</td>
+          <td>所有 <code>type="number"</code> 输入框无千分位、无范围提示、无校验态</td>
+          <td>输入 18000 与 180000 肉眼难以分辨,易出错</td>
+          <td><span class="sev sev-p2">P2</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <span class="kicker">02 · 设计原则</span>
+    <h2>六条准则,后续所有页面照此执行</h2>
+    <div class="principles">
+      <div class="principle"><span>P1</span><h3>可读性优先</h3><p>建立固定字号阶梯,正文不低于 15px,辅助文字不低于 12px,彻底取消 12px 以下的字号。</p></div>
+      <div class="principle"><span>P2</span><h3>渐进披露</h3><p>首屏只回答一个问题。细节、参数、来源、推导过程按需展开,不并列呈现。</p></div>
+      <div class="principle"><span>P3</span><h3>口径前置</h3><p>把「保守 / 中性 / 广义」从装饰性开关升级为带标签、带说明、始终可见的上下文控件。</p></div>
+      <div class="principle"><span>P4</span><h3>保留编辑气质</h3><p>衬线标题、纸张底、发丝分隔线、等宽数字全部保留——这是「税镜」区别于普通计算器的品牌资产。</p></div>
+      <div class="principle"><span>P5</span><h3>无障碍达标</h3><p>所有文字对比度 ≥ 4.5:1,交互元素可键盘到达,图表提供等价文本数据。</p></div>
+      <div class="principle"><span>P6</span><h3>可视化语义化</h3><p>图表改用 SVG 并附 <code>role</code>/<code>aria-label</code>,颜色不作为唯一区分手段。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">03 · 设计令牌</span>
+    <h2>字号阶梯:把下限从 6px 提到 12px</h2>
+    <p class="lede">下表左侧为令牌名,中间为实际渲染效果,右侧标注当前代码中的对应值与问题。</p>
+    <div class="scale">
+      <div class="scale-row"><span class="name">display-xl</span><span class="demo" style="font-family:var(--font-mono);font-size:34px;font-weight:500;letter-spacing:-.03em;">¥216,000</span><span class="note">Hero 主数字 · 现 52–84px</span></div>
+      <div class="scale-row"><span class="name">display</span><span class="demo" style="font-family:var(--font-display);font-size:28px;font-weight:600;">可识别税费</span><span class="note">区块标题 · 现 25–36px</span></div>
+      <div class="scale-row"><span class="name">title</span><span class="demo" style="font-size:19px;font-weight:600;">哪些消费含税更多</span><span class="note">卡片标题 · 现 23–31px</span></div>
+      <div class="scale-row"><span class="name">heading</span><span class="demo" style="font-size:16px;font-weight:600;">收入与地区</span><span class="note">表单分组 · 现 13px</span></div>
+      <div class="scale-row"><span class="name">body</span><span class="demo" style="font-size:15px;">直接税与消费价格中可识别税收因素之和。</span><span class="note">正文 · 现 16px 基准,但内部大量降级</span></div>
+      <div class="scale-row"><span class="name">body-sm</span><span class="demo" style="font-size:13px;">不含社保与公积金,也不代表宏观税负。</span><span class="note">次要说明 · 现 10–12px</span></div>
+      <div class="scale-row is-bad"><span class="name">caption</span><span class="demo" style="font-size:12px;color:var(--ink-faint);">核验日期 2026-09-10</span><span class="note">最低下限 12px · 现低至 6px</span></div>
+    </div>
+    <div class="callout">
+      <b>关键约束</b>
+      <p>本次重构后,<code style="font-family:var(--font-mono);">styles.css</code> 中不应再出现任何小于 12px 的 <code style="font-family:var(--font-mono);">font-size</code>。所有 8px / 9px / 10px / 11px 的字号需按上表重新映射。</p>
+    </div>
+
+    <h2 style="margin-top:52px;">色彩与对比度</h2>
+    <table>
+      <thead><tr><th>令牌</th><th>当前值</th><th>对比度</th><th>建议值</th><th>新对比度</th></tr></thead>
+      <tbody>
+        <tr><td>--ink</td><td><code>#171915</code></td><td>15.2:1</td><td>不变</td><td>15.2:1</td></tr>
+        <tr><td>--ink-soft</td><td><code>#555950</code></td><td>6.9:1</td><td>不变</td><td>6.9:1</td></tr>
+        <tr><td>--ink-faint</td><td><code>#85897f</code></td><td>3.0:1</td><td><code>#6b6f66</code></td><td>4.6:1</td></tr>
+        <tr><td>--tax</td><td><code>#bd4b36</code></td><td>4.6:1</td><td>不变</td><td>4.6:1</td></tr>
+        <tr><td>--gold</td><td><code>#9a7332</code></td><td>4.1:1</td><td><code>#856128</code></td><td>4.8:1</td></tr>
+        <tr><td>--social</td><td><code>#316b70</code></td><td>5.4:1</td><td>不变</td><td>5.4:1</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:16px;font-size:13px;color:var(--ink-soft);">同时为图表引入第二重编码:税负类目统一使用实心填充,估算类目统一使用斜纹填充,使色觉障碍用户也能区分,而不依赖颜色本身。</p>
+  </section>
+
+  <section>
+    <span class="kicker">04 · 信息架构</span>
+    <h2>导航从 9 项平铺,收敛为 4 组 + 1 动作</h2>
+    <div class="ia">
+      <div class="ia-col">
+        <h3>现状 · 9 项平铺</h3>
+        <ul>
+          <li><b>年度账单</b></li>
+          <li><b>单笔拆解</b></li>
+          <li><b>房与车</b></li>
+          <li><b>一天</b></li>
+          <li><b>一生</b></li>
+          <li><b>投资</b></li>
+          <li><b>对比</b></li>
+          <li><b>账单</b><small>与头部「生成账单」按钮重复指向同一页</small></li>
+          <li><b>规则与来源</b></li>
+        </ul>
+      </div>
+      <div class="ia-col is-new">
+        <h3>建议 · 4 组 + 1 动作</h3>
+        <ul>
+          <li><b>概览</b><small>年度账单 —— 用户每天回来的落脚点</small></li>
+          <li><b>场景</b><small>单笔拆解 · 一天 · 房与车 · 投资</small></li>
+          <li><b>推演</b><small>一生 · 对比</small></li>
+          <li><b>依据</b><small>规则与来源</small></li>
+          <li><b>生成账单</b><small>从导航移出,成为唯一的输出动作</small></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <b>为什么这样分</b>
+      <p>四个组名对应四种真实的使用意图:「我交了多少」→「这笔为什么」→「往后会怎样」→「你凭什么这么说」。分组后可让顶栏在 780px 以下自动折叠为下拉,移动端不再需要横向滚动。</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">05 · 逐页重构</span>
+    <h2>九个页面的具体改动</h2>
+    <div class="pages">
+      <div class="page-card">
+        <h3>年度账单<small>dashboard · 首屏</small></h3>
+        <ul>
+          <li><b>收敛首屏</b>:主数字 + 一句口径解释置顶,四个关键数字卡降为次级,取消并列六个的等权展示。</li>
+          <li><b>加引导</b>:首屏底部给出两条明确的下一步路径(拆开看 / 往前推),而不是让用户自己找导航。</li>
+          <li><b>口径控件</b>:改为带「口径」标签的分段控件,当前选项旁加一句解释。</li>
+          <li><b>环形图</b>:改用 SVG,补 <code>role="img"</code> 与数据表;颜色叠加斜纹区分估算项。</li>
+          <li><b>月柱图</b>:保留,但补齐 <code>aria-label</code> 与键盘可聚焦的数值提示。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>单笔拆解<small>lab</small></h3>
+        <ul>
+          <li><b>对齐基线</b>:当前标题区被 <code>margin-left: 19%</code> 人为偏移,与其余页面不齐,取消该偏移。</li>
+          <li><b>收据卡片</b>:保留,是全场最有辨识度的组件;仅上调字号与间距。</li>
+          <li><b>公式卡</b>:等宽公式提到 15px 以上,当前 14px 在中文环境下偏小。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>房与车<small>assets</small></h3>
+        <ul>
+          <li><b>结果分层</b>:买方直接税(大数字)与卖方税务观察(折叠区)分离得更彻底,避免误读为「我交了这么多」。</li>
+          <li><b>输入区</b>:字段间距统一到 8px 网格,取消 22px 的零散边距。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>一天<small>day</small></h3>
+        <ul>
+          <li><b>时间线</b>:当前事件行字号 9–11px,是重灾区;正文提到 15px,时间戳提到 13px。</li>
+          <li><b>检查器</b>:金额输入保持大字号(这是优点),但单位与说明文字上调到 13px。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>一生<small>life</small></h3>
+        <ul>
+          <li><b>滑杆</b>:当前 3px 轨道 + 13px 滑块,触控目标过小;轨道加到 6px,滑块加到 20px。</li>
+          <li><b>数值反馈</b>:滑杆右侧数值从 9px 提到 13px,并实时显示该值在 2026 年购买力下的换算。</li>
+          <li><b>十年柱</b>:补图例与数据表,当前仅靠颜色区分税费与缴费。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>投资<small>investment</small></h3>
+        <ul>
+          <li><b>持股期限选择</b>:三选一的选项文字仅 7–9px,改为 13px 并加选中态描边。</li>
+          <li><b>结果区</b>:与房与车页统一结果卡样式,减少页面间的样式漂移。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>对比<small>compare</small></h3>
+        <ul>
+          <li><b>A / B 双栏</b>:保留;但字段标签 9px 提到 13px。</li>
+          <li><b>差异高亮</b>:在 A/B 两栏中用同一套色彩语义,并在差额处给出「谁更多、多多少」的直白结论。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>账单<small>bill</small></h3>
+        <ul>
+          <li><b>页脚 6px 文字</b>:是全场最小字号,必须提到 12px;若担心影响导出观感,可仅在 PNG 导出时保留小字号。</li>
+          <li><b>导出动作</b>:页面上同时存在「导出 PDF」「导出 PNG」「调整数据」三个同级按钮,应按主次重排为「导出」下拉 + 次级动作。</li>
+        </ul>
+      </div>
+      <div class="page-card">
+        <h3>规则与来源<small>rules</small></h3>
+        <ul>
+          <li><b>表格</b>:改为真正的 <code>&lt;table&gt;</code> 语义,当前用 <code>div</code> + <code>role</code> 模拟,移动端体验差。</li>
+          <li><b>来源链接</b>:9px 提到 13px,并加外链图标区分站内跳转。</li>
+          <li><b>年份切换</b>:当前按钮 8px,提到 13px;禁用年份给出「待补规则」的可读说明。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">06 · 组件规范</span>
+    <h2>五个需要固化的组件</h2>
+    <table>
+      <thead><tr><th>组件</th><th>当前状态</th><th>规范化要求</th></tr></thead>
+      <tbody>
+        <tr><td>MetricCard</td><td>内联在 Dashboard 中,与 CompareLine / LifeMetric / report-ledger 四处样式各自为政</td><td>抽出单一组件,统一「标签 13px / 数值 20–34px 等宽 / 副说明 13px」三段式</td></tr>
+        <tr><td>ConfidenceMark</td><td>已抽象,但标记符号 ●◐△? 对屏幕阅读器无意义</td><td>补 <code>aria-label</code> 输出完整等级名;符号仅作装饰</td></tr>
+        <tr><td>Field</td><td>每种表单各写一套 CSS(money-input / asset-field / rate-input / workbench-field)</td><td>合并为一个 Field 组件,支持前缀后缀、单位、错误态</td></tr>
+        <tr><td>SegmentedControl</td><td>已复用,但选项文字 7–12px 不等</td><td>选项文字统一 13px,选中态同时用底色 + 描边,不单靠颜色</td></tr>
+        <tr><td>ResultPanel</td><td>房与车、投资、单笔拆解三处结果展示各不相同</td><td>统一为「结论数字 + 算式 + 口径说明 + 可信度」四段结构</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <span class="kicker">07 · 实施路线</span>
+    <h2>三个阶段,先修可读性,再动结构</h2>
+    <div class="roadmap">
+      <div class="phase phase--p0">
+        <div class="phase__head"><b>阶段一 · 可读性</b><span>P0</span></div>
+        <ul>
+          <li>建立字号阶梯令牌</li>
+          <li>全量替换 12px 以下字号</li>
+          <li>修正 --ink-faint / --gold 对比度</li>
+          <li>口径控件加标签与说明</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase__head"><b>阶段二 · 结构</b><span>P1</span></div>
+        <ul>
+          <li>导航四组重构 + 移动端折叠</li>
+          <li>参数面板分组 + 实时影响预览</li>
+          <li>首屏收敛与下一步引导</li>
+          <li>抽取五个共用组件</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase__head"><b>阶段三 · 深化</b><span>P2</span></div>
+        <ul>
+          <li>图表转 SVG 并补无障碍语义</li>
+          <li>斜纹第二重编码</li>
+          <li>数字输入千分位与校验</li>
+          <li>视图设置移入常规菜单</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:32px;">
+      <b>建议的推进方式</b>
+      <p>阶段一改完后立刻截图对比一次,确认观感没有变差——因为它只动字号与颜色,是风险最低、收益最大的一步。阶段二涉及布局结构调整,建议在此之前先确认信息架构是否认可。</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">08 · 验收清单</span>
+    <h2>重构完成的判定标准</h2>
+    <ul class="checklist">
+      <li>样式表中不再存在小于 12px 的字号</li>
+      <li>所有正文与辅助文字对比度 ≥ 4.5:1,可用自动化工具校验通过</li>
+      <li>顶栏导航在 780px 宽度下自动折叠,无横向滚动</li>
+      <li>「账单」在导航与头部只保留一个入口</li>
+      <li>参数面板可分组切换,且顶部持续显示改动对税负的影响</li>
+      <li>首屏存在明确的下一步引导</li>
+      <li>环形图与柱状图具备等价文本数据,屏幕阅读器可读取</li>
+      <li>图表在灰度打印下仍可区分各类目</li>
+      <li>九个页面的标题基线与左右边距完全一致</li>
+      <li>计算逻辑与税则数据零改动,<code style="font-family:var(--font-mono);">npm test</code> 19 项全部通过</li>
+    </ul>
+  </section>
+
+  <footer>
+    税镜 · 界面重构设计方案 v1 · 2026-09-11 · 本方案仅涉及界面层,不改变任何计算逻辑与税则数据
+  </footer>
+
+</div>
+</body>
+</html>

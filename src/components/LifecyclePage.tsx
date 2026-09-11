@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { annualIncomeTax, money } from '../lib/calculations'
+import type { CalculatorProfile } from '../types'
 import { Approx, ConfidenceMark } from './Marks'
+import { PageIntro } from './PageShell'
 
 interface LifeYear {
   age: number
@@ -12,19 +14,43 @@ interface LifeYear {
   realFactor: number
 }
 
-export function LifecyclePage({ embeddedRate }: { embeddedRate: number }) {
-  const [workAge, setWorkAge] = useState(22)
-  const [retireAge, setRetireAge] = useState(60)
-  const [endAge, setEndAge] = useState(80)
-  const [startingSalary, setStartingSalary] = useState(8000)
-  const [salaryGrowth, setSalaryGrowth] = useState(4)
-  const [annualSpend, setAnnualSpend] = useState(72_000)
-  const [spendGrowth, setSpendGrowth] = useState(2.5)
-  const [inflation, setInflation] = useState(2)
-  const [houseAge, setHouseAge] = useState(32)
-  const [housePrice, setHousePrice] = useState(2_000_000)
-  const [carInterval, setCarInterval] = useState(10)
-  const [carPrice, setCarPrice] = useState(150_000)
+export function LifecyclePage({ embeddedRate, profile, onUseScenario }: { embeddedRate: number; profile?: CalculatorProfile; onUseScenario?: (profile: CalculatorProfile, label: string) => void }) {
+  const profileSpend = profile ? Object.values(profile.expenses).reduce((sum, value) => sum + value, 0) * 12 : 72_000
+  const restore = () => {
+    try { return JSON.parse(sessionStorage.getItem('taxlens.lifecycle.v1') ?? '{}') as Record<string, number> } catch { return {} }
+  }
+  const saved = useMemo(restore, [])
+  const [workAge, setWorkAge] = useState(saved.workAge ?? 22)
+  const [retireAge, setRetireAge] = useState(saved.retireAge ?? 60)
+  const [endAge, setEndAge] = useState(saved.endAge ?? 80)
+  const [startingSalary, setStartingSalary] = useState(saved.startingSalary ?? profile?.monthlySalary ?? 8_000)
+  const [salaryGrowth, setSalaryGrowth] = useState(saved.salaryGrowth ?? 4)
+  const [annualSpend, setAnnualSpend] = useState(saved.annualSpend ?? profileSpend)
+  const [spendGrowth, setSpendGrowth] = useState(saved.spendGrowth ?? 2.5)
+  const [inflation, setInflation] = useState(saved.inflation ?? 2)
+  const [houseAge, setHouseAge] = useState(saved.houseAge ?? 32)
+  const [housePrice, setHousePrice] = useState(saved.housePrice ?? 2_000_000)
+  const [carInterval, setCarInterval] = useState(saved.carInterval ?? 10)
+  const [carPrice, setCarPrice] = useState(saved.carPrice ?? 150_000)
+
+  useEffect(() => {
+    try { sessionStorage.setItem('taxlens.lifecycle.v1', JSON.stringify({ workAge, retireAge, endAge, startingSalary, salaryGrowth, annualSpend, spendGrowth, inflation, houseAge, housePrice, carInterval, carPrice })) } catch { /* session draft is optional */ }
+  }, [annualSpend, carInterval, carPrice, endAge, houseAge, housePrice, inflation, retireAge, salaryGrowth, spendGrowth, startingSalary, workAge])
+
+  const syncFromProfile = () => {
+    if (!profile) return
+    setStartingSalary(profile.monthlySalary)
+    setAnnualSpend(profileSpend)
+  }
+  const useStartingYear = () => {
+    if (!profile || !onUseScenario) return
+    const currentMonthlySpend = Object.values(profile.expenses).reduce((sum, value) => sum + value, 0)
+    const targetMonthlySpend = annualSpend / 12
+    const expenses = currentMonthlySpend > 0
+      ? Object.fromEntries(Object.entries(profile.expenses).map(([key, value]) => [key, value * targetMonthlySpend / currentMonthlySpend])) as CalculatorProfile['expenses']
+      : { ...profile.expenses, other: targetMonthlySpend }
+    onUseScenario({ ...profile, monthlySalary: startingSalary, socialInsuranceBase: startingSalary, housingFundBase: startingSalary, expenses }, '用一生推演的起始年度替换模型')
+  }
 
   const model = useMemo(() => {
     const years: LifeYear[] = []
@@ -62,7 +88,12 @@ export function LifecyclePage({ embeddedRate }: { embeddedRate: number }) {
 
   return (
     <div className="life-page">
-      <header className="life-hero"><div><span className="kicker">20 岁 → 80 岁</span><h1>把一年拉长成一生。</h1><p>工资、消费、住房和汽车在时间里增长；同时用 2026 年实际购买力重算，避免几十年后的名义金额制造错觉。</p></div><div className="life-main-number"><span>一生可识别税费</span><strong><Approx>{money(nominalTax)}</Approx></strong><small>2026 年购买力：{money(realTax)}</small><ConfidenceMark level="model" /></div></header>
+      <PageIntro
+        stage={{ index: '03', label: '推演对比' }}
+        title="把一年拉长成一生。"
+        lead="工资、消费、住房和汽车在时间里增长；同时用 2026 年实际购买力重算，避免几十年后的名义金额制造错觉。"
+        aside={<div className="life-main-number"><span>一生可识别税费</span><strong><Approx>{money(nominalTax)}</Approx></strong><small>2026 年购买力：{money(realTax)}</small><ConfidenceMark level="model" /></div>}
+      ><div className="scenario-sync-row">{profile && <button className="text-button" onClick={syncFromProfile}>从我的年度重新同步</button>}{profile && onUseScenario && <button className="primary-button" onClick={useStartingYear}>用起始年度替换我的模型</button>}</div></PageIntro>
 
       <section className="life-workbench">
         <aside className="life-controls">
