@@ -55,6 +55,8 @@ npm run build
 
 项目通过 Cloudflare Workers Static Assets 发布，Worker 名称为 `cn-consumption`，生产分支为 `master`。Cloudflare Workers Builds 使用以下配置：
 
+自动部署已于 2026-09-11 启用；推送到 GitHub `master` 后，Cloudflare 会构建并发布新版本。
+
 - Root directory：仓库根目录
 - Build command：`npm run build`
 - Deploy command：`npm run deploy`
