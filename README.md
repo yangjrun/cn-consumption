@@ -57,6 +57,8 @@ npm run build
 
 自动部署已于 2026-09-11 启用；推送到 GitHub `master` 后，Cloudflare 会构建并发布新版本。
 
+仓库级 `.npmrc` 禁用第三方依赖的安装生命周期脚本，避免 Workers Builds 在安装仅用于本地模拟的原生扩展时阻塞。新增依赖后必须继续通过 `npm ci`、测试、生产构建和 Wrangler dry-run 验证。
+
 - Root directory：仓库根目录
 - Build command：`npm run build`
 - Deploy command：`npm run deploy`
