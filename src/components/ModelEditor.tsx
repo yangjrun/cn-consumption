@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { expenseMeta } from '../data/expenseMeta'
 import { money } from '../lib/calculations'
 import type { AppModelV1, CalculatorProfile, ExpenseKey } from '../types'
@@ -42,6 +42,7 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
   const [draft, setDraft] = useState(() => cloneModel(model))
   const [step, setStep] = useState(0)
   const [showMonths, setShowMonths] = useState(false)
+  const bodyRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -56,6 +57,10 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
     document.addEventListener('keydown', close)
     return () => document.removeEventListener('keydown', close)
   }, [onClose, onboarding, open])
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 })
+  }, [step])
 
   const averageSalary = useMemo(
     () => draft.monthlyIncome.reduce((sum, item) => sum + item.salary, 0) / 12,
@@ -156,7 +161,7 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
             </aside>
           </nav>
 
-          <div className="model-editor__body">
+          <div ref={bodyRef} className="model-editor__body">
           {step === 0 && (
             <section className="model-step-panel">
               <div className="model-step-heading"><div><span>01 / 收入</span><h2>先录入工资的真实节奏</h2></div><p>默认一键填充全年，也可以逐月调整。税额会按累计预扣法重新计算。</p></div>
