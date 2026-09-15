@@ -1,3 +1,4 @@
+import { calculateSocialInsuranceMonth, calculateSocialInsuranceYear } from './socialInsurance'
 import { expenseMeta } from '../data/expenseMeta'
 import type { CalculatorProfile, CityTier, MonthlyTaxPoint, TaxResult, ViewMode } from '../types'
 
@@ -157,22 +158,13 @@ export function incomeJourneyPerHundred(
   }
 }
 
-/**
- * 单个社保年度的月缴费基数。
- * 上海 2026 年按两个社保年度执行：1—6 月 ¥7,460—¥37,302，7—12 月 ¥7,546—¥37,731。
- * 这也是月度税费节奏里 7 月出现台阶的原因——基数上调会改变当月专项扣除，从而影响预扣税额。
- */
-export const monthlySocialInsuranceBase = (profile: CalculatorProfile, month: number) => {
-  const declaredBase = Math.max(0, profile.socialInsuranceBase)
-  if (profile.applyCitySocialBaseLimits && profile.city === '上海' && profile.year === 2026) {
-    return month <= 6 ? clamp(declaredBase, 7_460, 37_302) : clamp(declaredBase, 7_546, 37_731)
-  }
-  return declaredBase
-}
+/** Compatibility accessor: the pension base only. Inspect socialInsurance for coverage and other bases. */
+export const monthlySocialInsuranceBase = (profile: CalculatorProfile, month: number) =>
+  calculateSocialInsuranceMonth(profile, month).details.find((item) => item.insurance === 'pension')?.base ?? Math.max(0, profile.socialInsuranceBase)
 
 export const annualSocialInsuranceBase = (profile: CalculatorProfile) =>
-  Array.from({ length: 12 }, (_, index) => monthlySocialInsuranceBase(profile, index + 1))
-    .reduce((total, base) => total + base, 0)
+  calculateSocialInsuranceYear(profile).months.reduce((total, month) =>
+    total + (month.details.find((item) => item.insurance === 'pension')?.base ?? 0), 0)
 
 /**
  * 12 个月税费节奏。
@@ -190,7 +182,6 @@ export const annualSocialInsuranceBase = (profile: CalculatorProfile) =>
  */
 export function monthlyTaxSchedule(profile: CalculatorProfile, result: TaxResult): MonthlyTaxPoint[] {
   const basicDeduction = 5_000 + Math.max(0, profile.specialDeductionMonthly)
-  const personalRate = Math.max(0, profile.pensionRate) + Math.max(0, profile.medicalRate) + Math.max(0, profile.unemploymentRate)
   const fundMonthly = Math.max(0, profile.housingFundBase) * Math.max(0, profile.housingFundRate)
   const monthlyGross = Math.max(0, profile.monthlySalary)
   const embeddedMonthly = (finiteNonNegative(result.vatEstimate) + finiteNonNegative(result.consumptionTaxEstimate)) / 12
@@ -201,15 +192,19 @@ export function monthlyTaxSchedule(profile: CalculatorProfile, result: TaxResult
 
   return Array.from({ length: 12 }, (_, index) => {
     const month = index + 1
-    const socialBase = monthlySocialInsuranceBase(profile, month)
-    const personalSocial = socialBase * personalRate
-    cumulativeTaxable += monthlyGross - basicDeduction - personalSocial - fundMonthly
+    const socialInsurance = result.socialInsurance.months[index]
+    const socialBase = socialInsurance.details.find((item) => item.insurance === 'pension')?.base ?? profile.socialInsuranceBase
+    const personalSocial = socialInsurance.personalTotal
+    cumulativeTaxable += monthlyGross - basicDeduction - socialInsurance.taxDeductibleTotal - fundMonthly
     const salaryIncomeTax = Math.max(0, annualIncomeTax(cumulativeTaxable) - cumulativePaid)
     cumulativePaid += salaryIncomeTax
     const bonus = month === 12 ? bonusTax : 0
     return {
       month,
       socialBase,
+      socialInsurance,
+      employerSocial: socialInsurance.employerTotal,
+      socialTaxDeduction: socialInsurance.taxDeductibleTotal,
       salaryIncomeTax,
       cumulativeIncomeTax: cumulativePaid,
       personalSocial,
@@ -225,14 +220,11 @@ export function calculateProfile(profile: CalculatorProfile, mode: ViewMode): Ta
   const annualSalary = profile.monthlySalary * 12
   const annualBonus = Math.max(0, profile.annualBonus)
   const annualGross = annualSalary + annualBonus
-  const annualSocialBase = annualSocialInsuranceBase(profile)
+  const socialInsurance = calculateSocialInsuranceYear(profile)
   const fundBase = Math.max(0, profile.housingFundBase)
-  const pension = annualSocialBase * profile.pensionRate
-  const medical = annualSocialBase * profile.medicalRate
-  const unemployment = annualSocialBase * profile.unemploymentRate
   const housingFund = fundBase * 12 * profile.housingFundRate
-  const personalSocial = pension + medical + unemployment
-  const deductibleContributions = personalSocial + housingFund
+  const personalSocial = socialInsurance.personalTotal
+  const deductibleContributions = socialInsurance.taxDeductibleTotal + housingFund
   const taxableSalary = annualSalary - 60_000 - deductibleContributions - profile.specialDeductionMonthly * 12
   const salaryIncomeTax = annualIncomeTax(taxableSalary)
   const separatelyCalculatedBonusTax = annualBonusIncomeTax(annualBonus)
@@ -247,8 +239,7 @@ export function calculateProfile(profile: CalculatorProfile, mode: ViewMode): Ta
   const annualBonusIncomeTaxAmount = effectiveAnnualBonusTaxMethod === 'separate'
     ? separatelyCalculatedBonusTax
     : Math.max(0, incomeTaxIfComprehensive - salaryIncomeTax)
-  const employerSocialRate = profile.employerPensionRate + profile.employerMedicalRate + profile.employerUnemploymentRate + profile.employerInjuryRate
-  const employerSocial = annualSocialBase * employerSocialRate
+  const employerSocial = socialInsurance.employerTotal
   const employerHousingFund = fundBase * 12 * profile.employerHousingFundRate
   const employerContributions = employerSocial + employerHousingFund
   const employerCost = annualGross + employerContributions
@@ -304,6 +295,7 @@ export function calculateProfile(profile: CalculatorProfile, mode: ViewMode): Ta
   const freedomDay = Math.min(365, Math.max(0, Math.round(365 * burdenRatio)))
 
   return {
+    socialInsurance,
     annualGross,
     incomeTax,
     salaryIncomeTax,

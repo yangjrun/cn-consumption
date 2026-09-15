@@ -27,7 +27,13 @@ export function YearComparison({ profile }: { profile: CalculatorProfile }) {
       const rate = goods17.includes(expenseKey) ? .17 : reduced13.includes(expenseKey) ? .13 : 0
       return sum + vatFromGross(monthly * 12, rate)
     }, 0)
-    const tax2020 = calculateProfile({ ...profile, year: 2020, applyCitySocialBaseLimits: false }, 'neutral').incomeTax
+    const tax2020 = calculateProfile({
+      ...profile,
+      year: 2020,
+      applyCitySocialBaseLimits: false,
+      socialRateMode: 'custom',
+      customSocialContributions: {}
+    }, 'neutral').incomeTax
     const currentTax = calculateProfile(profile, 'neutral').incomeTax
     const currentVat = Object.entries(profile.expenses).reduce((sum, [key, monthly]) => {
       const rates: Partial<Record<ExpenseKey, number>> = { dining: .06, groceries: .09, clothing: .13, electronics: .13, utilities: .09, telecom: .09, transport: .09, fuel: .13, travel: .06, entertainment: .06, tobacco: .13, alcohol: .13 }

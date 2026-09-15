@@ -49,7 +49,7 @@ export function LifecyclePage({ embeddedRate, profile, onUseScenario }: { embedd
     const expenses = currentMonthlySpend > 0
       ? Object.fromEntries(Object.entries(profile.expenses).map(([key, value]) => [key, value * targetMonthlySpend / currentMonthlySpend])) as CalculatorProfile['expenses']
       : { ...profile.expenses, other: targetMonthlySpend }
-    onUseScenario({ ...profile, monthlySalary: startingSalary, socialInsuranceBase: startingSalary, housingFundBase: startingSalary, expenses }, '用一生推演的起始年度替换模型')
+    onUseScenario({ ...profile, socialRateMode: 'custom', applyCitySocialBaseLimits: false, customSocialContributions: {}, pensionRate: .08, medicalRate: .02, unemploymentRate: .005, monthlySalary: startingSalary, socialInsuranceBase: startingSalary, housingFundBase: startingSalary, expenses }, '用一生推演的起始年度替换模型')
   }
 
   const model = useMemo(() => {
@@ -114,7 +114,7 @@ export function LifecyclePage({ embeddedRate, profile, onUseScenario }: { embedd
           <div className="life-chart">
             {decades.map((item) => <div className="life-decade" key={item.decade}><div className="life-bar-stack"><i className="life-bar-tax" style={{ height: `${item.tax / maxDecade * 100}%` }} /><i className="life-bar-social" style={{ height: `${item.social / maxDecade * 100}%` }} /></div><span>{item.decade}s</span></div>)}
           </div>
-          <div className="life-method"><b>模型说明</b><p>这是一条固定税制情景路径，不是对未来政策的预测。个税全程使用当前综合所得税率；社保按收入的 10.5% 简化，未应用缴费基数上下限；消费内含税率来自你当前年度消费篮子。资产价格作为发生当年的名义金额输入。</p></div>
+          <div className="life-method"><b>模型说明</b><p>这是一条固定税制情景路径，不是对未来政策的预测。个税全程使用当前综合所得税率；社保按收入的 10.5% 简化，未应用六城官方规则或缴费基数上下限；写回年度模型时使用自定义费率，公积金仍沿用年度手填值；消费内含税率来自你当前年度消费篮子。资产价格作为发生当年的名义金额输入。</p></div>
         </div>
       </section>
     </div>

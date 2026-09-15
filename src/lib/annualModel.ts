@@ -1,4 +1,5 @@
-import { expenseMeta, initialExpenses } from '../data/expenseMeta'
+import { normalizeCalculatorProfile } from './profileNormalization'
+import { expenseMeta } from '../data/expenseMeta'
 import type {
   AnnualEvent,
   AnnualMonthlyPoint,
@@ -15,7 +16,6 @@ import {
   annualIncomeTax,
   calculateProfile,
   isAnnualBonusSeparateTaxAvailable,
-  monthlySocialInsuranceBase,
   vatFromGross
 } from './calculations'
 
@@ -36,10 +36,7 @@ export function modelFromProfile(profile: CalculatorProfile, status: AppModelV1[
   return {
     version: 1,
     status,
-    profile: {
-      ...profile,
-      expenses: { ...initialExpenses, ...profile.expenses }
-    },
+    profile: normalizeCalculatorProfile(profile, profile),
     monthlyIncome: Array.from({ length: 12 }, (_, index) => ({ month: index + 1, salary: finiteNonNegative(profile.monthlySalary) })),
     annualBonusMonth: 12,
     events: [],
@@ -54,11 +51,7 @@ export function normalizeAnnualModel(raw: unknown, fallbackProfile: CalculatorPr
   const candidate = raw as Partial<AppModelV1>
   if (candidate.version !== 1 || !candidate.profile) return modelFromProfile(fallbackProfile, 'sample')
 
-  const profile = {
-    ...fallbackProfile,
-    ...candidate.profile,
-    expenses: { ...initialExpenses, ...candidate.profile.expenses }
-  }
+  const profile = normalizeCalculatorProfile(candidate.profile, fallbackProfile)
   const monthlyIncome = Array.from({ length: 12 }, (_, index) => {
     const supplied = Array.isArray(candidate.monthlyIncome)
       ? candidate.monthlyIncome.find((item) => item && item.month === index + 1)
@@ -241,11 +234,9 @@ export function calculateAnnualModel(model: AppModelV1, estimateMode: EstimateMo
 
   const annualSalary = model.monthlyIncome.reduce((sum, item) => sum + finiteNonNegative(item.salary), 0)
   const annualBonus = finiteNonNegative(profile.annualBonus)
-  const annualSocialBase = Array.from({ length: 12 }, (_, index) => monthlySocialInsuranceBase(profile, index + 1))
-    .reduce((sum, item) => sum + item, 0)
-  const personalRate = finiteNonNegative(profile.pensionRate) + finiteNonNegative(profile.medicalRate) + finiteNonNegative(profile.unemploymentRate)
+  const socialInsurance = base.socialInsurance
   const housingFundMonthly = finiteNonNegative(profile.housingFundBase) * finiteNonNegative(profile.housingFundRate)
-  const salaryTaxable = annualSalary - 60_000 - annualSocialBase * personalRate - housingFundMonthly * 12 - finiteNonNegative(profile.specialDeductionMonthly) * 12
+  const salaryTaxable = annualSalary - 60_000 - socialInsurance.taxDeductibleTotal - housingFundMonthly * 12 - finiteNonNegative(profile.specialDeductionMonthly) * 12
   const salaryIncomeTax = annualIncomeTax(salaryTaxable)
   const separateBonusTax = annualBonusIncomeTax(annualBonus)
   const incomeTaxIfSeparate = salaryIncomeTax + separateBonusTax
@@ -263,9 +254,10 @@ export function calculateAnnualModel(model: AppModelV1, estimateMode: EstimateMo
   let cumulativePaid = 0
   const monthlySchedule: AnnualMonthlyPoint[] = model.monthlyIncome.map((input, index) => {
     const month = index + 1
-    const socialBase = monthlySocialInsuranceBase(profile, month)
-    const personalSocial = socialBase * personalRate
-    cumulativeTaxable += finiteNonNegative(input.salary) - 5_000 - finiteNonNegative(profile.specialDeductionMonthly) - personalSocial - housingFundMonthly
+    const monthlySocial = socialInsurance.months[index]
+    const socialBase = monthlySocial.details.find((item) => item.insurance === 'pension')?.base ?? profile.socialInsuranceBase
+    const personalSocial = monthlySocial.personalTotal
+    cumulativeTaxable += finiteNonNegative(input.salary) - 5_000 - finiteNonNegative(profile.specialDeductionMonthly) - monthlySocial.taxDeductibleTotal - housingFundMonthly
     const cumulativeDue = annualIncomeTax(cumulativeTaxable)
     // A negative value represents a net withholding adjustment after an earlier high-income month.
     const salaryTax = cumulativeDue - cumulativePaid
@@ -279,6 +271,9 @@ export function calculateAnnualModel(model: AppModelV1, estimateMode: EstimateMo
       month,
       grossSalary: finiteNonNegative(input.salary),
       socialBase,
+      socialInsurance: monthlySocial,
+      employerSocial: monthlySocial.employerTotal,
+      socialTaxDeduction: monthlySocial.taxDeductibleTotal,
       salaryIncomeTax: salaryTax,
       cumulativeIncomeTax: cumulativePaid,
       personalSocial,

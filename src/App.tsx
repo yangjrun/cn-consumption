@@ -6,7 +6,8 @@ import { ExploreWorkspace } from './components/ExploreWorkspace'
 import { ModelEditor } from './components/ModelEditor'
 import { RulesPage } from './components/RulesPage'
 import { ScenarioWorkspace } from './components/ScenarioWorkspace'
-import { initialExpenses } from './data/expenseMeta'
+import { defaultProfile } from './data/defaultProfile'
+import { normalizeCalculatorProfile } from './lib/profileNormalization'
 import {
   applyModelApplication,
   calculateAnnualModel,
@@ -48,43 +49,6 @@ const pageItems: Array<{ page: Page; label: string; index: string }> = [
   { page: 'rules', label: '规则与来源', index: '05' }
 ]
 
-const defaultProfile: CalculatorProfile = {
-  year: 2026,
-  city: '上海',
-  monthlySalary: 18_000,
-  annualBonus: 0,
-  annualBonusTaxMethod: 'optimal',
-  specialDeductionMonthly: 2_000,
-  socialInsuranceBase: 18_000,
-  housingFundBase: 18_000,
-  applyCitySocialBaseLimits: true,
-  pensionRate: 0.08,
-  medicalRate: 0.02,
-  unemploymentRate: 0.005,
-  housingFundRate: 0.07,
-  employerPensionRate: 0.16,
-  employerMedicalRate: 0.09,
-  employerUnemploymentRate: 0.005,
-  employerInjuryRate: 0.002,
-  employerHousingFundRate: 0.07,
-  fuelPrice: 8.1,
-  cityTier: 'urban',
-  expenses: initialExpenses
-}
-
-function normalizeProfile(raw: Partial<CalculatorProfile>): CalculatorProfile {
-  const salary = typeof raw.monthlySalary === 'number' ? raw.monthlySalary : defaultProfile.monthlySalary
-  return {
-    ...defaultProfile,
-    ...raw,
-    monthlySalary: Math.max(0, salary),
-    socialInsuranceBase: typeof raw.socialInsuranceBase === 'number' ? Math.max(0, raw.socialInsuranceBase) : salary,
-    housingFundBase: typeof raw.housingFundBase === 'number' ? Math.max(0, raw.housingFundBase) : salary,
-    annualBonusTaxMethod: raw.annualBonusTaxMethod === 'separate' || raw.annualBonusTaxMethod === 'comprehensive' || raw.annualBonusTaxMethod === 'optimal'
-      ? raw.annualBonusTaxMethod : defaultProfile.annualBonusTaxMethod,
-    expenses: { ...initialExpenses, ...raw.expenses }
-  }
-}
 
 function readInitialModel() {
   try {
@@ -92,11 +56,11 @@ function readInitialModel() {
     const sharedModel = params.get('model')
     if (sharedModel) return { model: normalizeAnnualModel(JSON.parse(sharedModel), defaultProfile), explicit: true }
     const sharedProfile = params.get('profile')
-    if (sharedProfile) return { model: modelFromProfile(normalizeProfile(JSON.parse(sharedProfile))), explicit: true }
+    if (sharedProfile) return { model: modelFromProfile(normalizeCalculatorProfile(JSON.parse(sharedProfile), defaultProfile)), explicit: true }
     const savedModel = localStorage.getItem(MODEL_STORAGE_KEY)
     if (savedModel) return { model: normalizeAnnualModel(JSON.parse(savedModel), defaultProfile), explicit: true }
     const legacyProfile = localStorage.getItem(LEGACY_PROFILE_STORAGE_KEY)
-    if (legacyProfile) return { model: modelFromProfile(normalizeProfile(JSON.parse(legacyProfile))), explicit: true }
+    if (legacyProfile) return { model: modelFromProfile(normalizeCalculatorProfile(JSON.parse(legacyProfile), defaultProfile)), explicit: true }
   } catch {
     // Damaged local/share data falls through to a clearly marked sample model.
   }

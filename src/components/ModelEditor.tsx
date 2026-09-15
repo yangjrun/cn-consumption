@@ -1,3 +1,5 @@
+import { SocialInsuranceEditor } from './SocialInsuranceEditor'
+import { calculateSocialInsuranceYear, withSocialCity } from '../lib/socialInsurance'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { expenseMeta } from '../data/expenseMeta'
 import { money } from '../lib/calculations'
@@ -70,6 +72,7 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
     () => Object.values(draft.profile.expenses).reduce((sum, item) => sum + item, 0),
     [draft.profile.expenses]
   )
+  const socialPreview = useMemo(() => calculateSocialInsuranceYear(draft.profile), [draft.profile])
   const currentStep = steps[step]
 
   if (!open) return null
@@ -181,22 +184,16 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
 
           {step === 1 && (
             <section className="model-step-panel">
-              <div className="model-step-heading"><div><span>02 / 缴费</span><h2>让地区和扣除有明确依据</h2></div><p>上海可应用 2026 年上下半年社保基数范围；其他城市按你填写的基数计算。</p></div>
+              <div className="model-step-heading"><div><span>02 / 缴费</span><h2>让地区和扣除有明确依据</h2></div><p>六城按缴费所属月份分别匹配基数与费率；参保条件、个人和单位缴费均可在下方核对。</p></div>
               <div className="model-form-grid model-form-grid--three">
-                <label className="model-field"><span>城市</span><select value={draft.profile.city} onChange={(event) => patchProfile('city', event.target.value)}><option>上海</option><option>北京</option><option>深圳</option><option>广州</option><option>杭州</option><option>成都</option><option>其他城市</option></select></label>
-                <label className="model-field"><span>计算年份</span><select value={draft.profile.year} onChange={(event) => patchProfile('year', Number(event.target.value))}><option value="2026">2026</option></select></label>
+                <label className="model-field"><span>城市</span><select value={draft.profile.city} onChange={(event) => setDraft((current) => ({ ...current, profile: withSocialCity(current.profile, event.target.value) }))}>{!['上海', '北京', '深圳', '广州', '杭州', '成都', '其他城市'].includes(draft.profile.city) && <option>{draft.profile.city}</option>}<option>上海</option><option>北京</option><option>深圳</option><option>广州</option><option>杭州</option><option>成都</option><option>其他城市</option></select></label>
+                <label className="model-field"><span>计算年份</span><select value={draft.profile.year} onChange={(event) => patchProfile('year', Number(event.target.value))}><option value="2026">2026</option>{draft.profile.year !== 2026 && <option value={draft.profile.year}>{draft.profile.year}（需手工校准）</option>}</select></label>
                 <label className="model-field"><span>所在地档次</span><select value={draft.profile.cityTier} onChange={(event) => patchProfile('cityTier', event.target.value as CalculatorProfile['cityTier'])}><option value="urban">市区</option><option value="county">县城和镇</option><option value="other">其他地区</option></select></label>
                 <AmountInput label="社保月缴费基数" value={draft.profile.socialInsuranceBase} onChange={(value) => patchProfile('socialInsuranceBase', value)} />
                 <AmountInput label="公积金月缴存基数" value={draft.profile.housingFundBase} onChange={(value) => patchProfile('housingFundBase', value)} />
                 <AmountInput label="每月专项附加扣除" value={draft.profile.specialDeductionMonthly} onChange={(value) => patchProfile('specialDeductionMonthly', value)} />
               </div>
-              {draft.profile.city === '上海' && <label className="model-check"><input type="checkbox" checked={draft.profile.applyCitySocialBaseLimits} onChange={(event) => patchProfile('applyCitySocialBaseLimits', event.target.checked)} /><span><b>应用上海 2026 社保基数上下限</b><small>1—6 月与 7—12 月分别计算，并在月度图标出切换点。</small></span></label>}
-              <div className="model-subsection-head"><div><span>个人缴费比例</span><small>如无特殊情况，可保留当前值</small></div></div>
-              <div className="model-rate-grid">
-                {([
-                  ['pensionRate', '个人养老'], ['medicalRate', '个人医疗'], ['unemploymentRate', '个人失业'], ['housingFundRate', '个人公积金']
-                ] as Array<[keyof CalculatorProfile, string]>).map(([key, label]) => <label key={key}><span>{label}</span><span><input type="number" min="0" max="50" step="0.1" value={Number(draft.profile[key]) * 100} onChange={(event) => patchProfile(key, numeric(event.target.value) / 100 as never)} /><b>%</b></span></label>)}
-              </div>
+              <SocialInsuranceEditor profile={draft.profile} onChange={(profile) => setDraft((current) => ({ ...current, profile }))} />
             </section>
           )}
 
@@ -216,7 +213,7 @@ export function ModelEditor({ model, open, onboarding = false, onSave, onClose, 
         <footer className="model-editor__footer">
           <div className="model-editor__footer-context">
             <span>第 {step + 1} 步，共 {steps.length} 步</span>
-            <strong>{currentStep.label}</strong>
+            <strong>{currentStep.label}</strong>{!socialPreview.complete && <small className="social-save-note">社保需手工校准</small>}
           </div>
           <div className="model-editor__footer-actions">
             {onboarding && onSkip && <button className="text-button model-skip-button" onClick={onSkip}>先使用示例数据</button>}

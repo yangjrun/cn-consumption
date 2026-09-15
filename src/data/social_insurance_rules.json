@@ -1,0 +1,1271 @@
+{
+  "version": 1,
+  "supportedYears": [
+    2026
+  ],
+  "cities": [
+    {
+      "name": "上海",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "requiredOptions": [],
+      "note": "普通企业在职职工；生育保险并入职工医保，工伤按一类行业基准试算。"
+    },
+    {
+      "name": "北京",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "requiredOptions": [],
+      "note": "普通企业在职职工；医保个人缴费含每月3元大额医疗互助，生育保险并入医保。"
+    },
+    {
+      "name": "深圳",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity",
+        "localPension"
+      ],
+      "requiredOptions": [
+        "medicalTier",
+        "hukou"
+      ],
+      "note": "深圳户籍职工须参加医保一档并由单位缴纳地方补充养老；非深户可由单位选择一档或二档。"
+    },
+    {
+      "name": "广州",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "requiredOptions": [],
+      "note": "普通企业在职职工；医保单位阶段性4.5%已于2025年底到期，2026年恢复6%。"
+    },
+    {
+      "name": "杭州",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity",
+        "medicalSupplement"
+      ],
+      "requiredOptions": [],
+      "note": "普通企业在职职工；2026年基数尚未正式发布，官方模式需手工校准基数。"
+    },
+    {
+      "name": "成都",
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "requiredOptions": [],
+      "note": "普通企业在职职工；医保单位费率含生育保险和大病医疗互助补充保险。"
+    }
+  ],
+  "sources": [
+    {
+      "id": "sh-base-2025",
+      "title": "本市调整2025年度社保缴费基数上下限",
+      "publisher": "上海市人力资源和社会保障局",
+      "url": "https://rsj.sh.gov.cn/tgsgg_17341/20250918/t0035_1435637.html",
+      "publishedAt": "2025-09-18",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年7月起上限37302元、下限7460元"
+    },
+    {
+      "id": "sh-base-2026",
+      "title": "单位职工缴纳城镇养老保险的基数是多少？",
+      "publisher": "上海市人力资源和社会保障局",
+      "url": "https://rsj.sh.gov.cn/tdjjf_17554/20260824/t0035_1443297.html",
+      "publishedAt": "2026-08-24",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年7月起上限37731元、下限7546元"
+    },
+    {
+      "id": "sh-personal-rates-2026",
+      "title": "新就业形态劳动者专属服务指南请收好",
+      "publisher": "上海市人民政府",
+      "url": "https://www.shanghai.gov.cn/nw17239/20260913/37398bbb63ad4fffa64e0b9deb0f6afc.html",
+      "publishedAt": "2026-09-12",
+      "verifiedAt": "2026-09-15",
+      "evidence": "个人养老8%、医保2%、失业0.5%，工伤不缴"
+    },
+    {
+      "id": "sh-employer-rates",
+      "title": "单位缴纳社会保险费的比例是多少？",
+      "publisher": "上海市人力资源和社会保障局",
+      "url": "https://rsj.sh.gov.cn/tdjjf_17554/20250120/t0035_1430072.html",
+      "publishedAt": "2025-01-20",
+      "verifiedAt": "2026-09-15",
+      "evidence": "单位养老16%、医保9%、失业0.5%、工伤0.2%至1.9%"
+    },
+    {
+      "id": "sh-unemployment-baseline",
+      "title": "关于调整本市城镇职工社会保险缴费比例的通知",
+      "publisher": "上海市人民政府",
+      "url": "https://www.shanghai.gov.cn/nw39663/20200821/0001-39663_47484.html",
+      "publishedAt": "2016-03-21",
+      "verifiedAt": "2026-09-15",
+      "evidence": "失业保险总缴费比例由2%调整为1.5%"
+    },
+    {
+      "id": "sh-unemployment-expiry",
+      "title": "关于本市失业保险和工伤保险费率有关事项的通知",
+      "publisher": "上海市人力资源和社会保障局等",
+      "url": "https://rsj.sh.gov.cn/tshbx_17729/20250103/t0035_1429759.html",
+      "publishedAt": "2024-12-31",
+      "verifiedAt": "2026-09-15",
+      "evidence": "1%阶段性失业保险费率执行至2025年12月31日"
+    },
+    {
+      "id": "sh-medical-2025",
+      "title": "关于继续阶段性降低本市职工基本医疗保险费费率的通知（2025）",
+      "publisher": "上海市医疗保障局等",
+      "url": "https://ybj.sh.gov.cn/gfxwj/20250225/e6a4b235d8734ed49ade29f5e05c0aaa.html",
+      "publishedAt": "2025-02-20",
+      "verifiedAt": "2026-09-15",
+      "evidence": "单位9%、个人2%，有效至2026年2月28日"
+    },
+    {
+      "id": "sh-medical-2026",
+      "title": "关于继续阶段性降低本市职工基本医疗保险费费率的通知（2026）",
+      "publisher": "上海市医疗保障局等",
+      "url": "https://ybj.sh.gov.cn/gfxwj/20260313/921e047144694b61b6df8ca0c5ef2cfc.html",
+      "publishedAt": "2026-03-10",
+      "verifiedAt": "2026-09-15",
+      "evidence": "单位9%、个人2%，2026年3月起实施"
+    },
+    {
+      "id": "sh-injury-2026",
+      "title": "工伤保险缴费费率是多少？",
+      "publisher": "上海市人力资源和社会保障局",
+      "url": "https://rsj.sh.gov.cn/tjfbz_17568/20260127/t0035_1438278.html",
+      "publishedAt": "2026-01-27",
+      "verifiedAt": "2026-09-15",
+      "evidence": "八类行业基准费率0.2%至1.9%"
+    },
+    {
+      "id": "bj-base-2025",
+      "title": "关于2025年度各项社会保险缴费工资基数上下限的通告",
+      "publisher": "北京市人力资源和社会保障局等",
+      "url": "https://swj.beijing.gov.cn/zwgk/szfgb/202512/P020251210656850568550.pdf",
+      "publishedAt": "2025-09-18",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年7月起五险上限35811元、下限7162元"
+    },
+    {
+      "id": "bj-base-2026",
+      "title": "关于2026年度各项社会保险缴费工资基数上下限的通告",
+      "publisher": "北京市人力资源和社会保障局等",
+      "url": "https://rsj.beijing.gov.cn/xxgk/2024zcwj/202608/t20260821_4831461.html",
+      "publishedAt": "2026-08-21",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年7月起五险上限36348元、下限7270元"
+    },
+    {
+      "id": "bj-rates-2026",
+      "title": "北京市投资服务指南：北京市社会保险费率",
+      "publisher": "北京市商务局",
+      "url": "https://sw.beijing.gov.cn/zwxx/swxx/202605/P020260512520283489932.pdf",
+      "publishedAt": "2026-05-12",
+      "verifiedAt": "2026-09-15",
+      "evidence": "养老16%/8%、失业0.5%/0.5%、医保9.8%/2%+3元"
+    },
+    {
+      "id": "gd-pension-base-2025",
+      "title": "关于公布2025年职工基本养老保险缴费基数上下限等有关问题的通知",
+      "publisher": "广东省人力资源和社会保障厅等",
+      "url": "https://guangdong.chinatax.gov.cn/gdsw/ssfggds/2025-10/27/content_ba2a20bf040648e089f9edf9f557fa2b.shtml",
+      "publishedAt": "2025-10-24",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年7月起广州下限5510元、其他地区4775元，上限27549元"
+    },
+    {
+      "id": "gd-pension-rate",
+      "title": "关于2025年企业职工基本养老保险费申报缴纳的通告",
+      "publisher": "广东省税务局、深圳市税务局、广东省人社厅",
+      "url": "https://guangdong.chinatax.gov.cn/gdsw/zqsw_tzgg/2024-12/30/content_018b45af0f1947eb81918886a2d9dfd2.shtml",
+      "publishedAt": "2024-12-30",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年1月起用人单位养老保险费率16%"
+    },
+    {
+      "id": "gd-injury-rate",
+      "title": "关于实施省级统筹工伤保险行业基准费率标准有关事项的通知",
+      "publisher": "广东省人力资源和社会保障厅等",
+      "url": "https://hrss.gd.gov.cn/zcfg/zcfgk/content/post_3269010.html",
+      "publishedAt": "2021-04-20",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2024年7月起深圳与全省统一为0.2%至1.4%"
+    },
+    {
+      "id": "gd-unemployment-expiry",
+      "title": "阶段性降低企业失业保险费率政策",
+      "publisher": "国家税务总局广东省税务局",
+      "url": "https://guangdong.chinatax.gov.cn/uploads/nsrxt/kck/202506/18064b6cfd8e43039fba85eb4f1971ce.pdf",
+      "publishedAt": "2025-06-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "0.8%/0.2%优惠费率执行至2025年12月31日"
+    },
+    {
+      "id": "gz-unemployment-baseline",
+      "title": "广州市失业保险持续助企减负稳岗",
+      "publisher": "广州市人力资源和社会保障局",
+      "url": "https://www.gz.gov.cn/ysgz/xwdt/ysdt/content/post_10238580.html",
+      "publishedAt": "2025-04-27",
+      "verifiedAt": "2026-09-15",
+      "evidence": "基础费率2%，单位1.5%、个人0.5%"
+    },
+    {
+      "id": "sz-unemployment-baseline",
+      "title": "关于调整本市失业保险缴费费率的通知",
+      "publisher": "深圳市人民政府办公厅",
+      "url": "https://www.sz.gov.cn/zfgb/2015/gb944/content/post_4941584.html",
+      "publishedAt": "2015-12-16",
+      "verifiedAt": "2026-09-15",
+      "evidence": "失业保险基础费率单位1%、个人0.5%"
+    },
+    {
+      "id": "sz-medical-2026",
+      "title": "关于2026年职工医保和生育保险缴费标准的温馨提示",
+      "publisher": "深圳市医疗保障局",
+      "url": "https://hsa.sz.gov.cn/gkmlpt/content/12/12567/post_12567884.html",
+      "publishedAt": "2025-12-25",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年医保基数6727至33633元，一档单位恢复6%"
+    },
+    {
+      "id": "sz-medical-rule",
+      "title": "深圳市医疗保障办法",
+      "publisher": "深圳市人民政府",
+      "url": "https://www.sz.gov.cn/zfgb/2023/gb1305/content/post_10865658.html",
+      "publishedAt": "2023-09-27",
+      "verifiedAt": "2026-09-15",
+      "evidence": "一档6%/2%，二档1.5%/0.5%，深户须一档"
+    },
+    {
+      "id": "sz-local-pension",
+      "title": "深圳经济特区社会养老保险条例",
+      "publisher": "深圳市人民代表大会常务委员会",
+      "url": "https://hrss.sz.gov.cn/szsi/sbjxxgk/zcfggfxwj/zcfg/ylbx/content/post_9108027.html",
+      "publishedAt": "2021-07-20",
+      "verifiedAt": "2026-09-15",
+      "evidence": "深户职工地方补充养老由单位按基数1%缴纳"
+    },
+    {
+      "id": "sz-unemployment-base-2025",
+      "title": "深圳2025年7月起失业保险基数上限答复",
+      "publisher": "深圳市人力资源和社会保障局",
+      "url": "https://www.sz.gov.cn/hdjlpt/detail?pid=3209367",
+      "publishedAt": "2025-07-22",
+      "verifiedAt": "2026-09-15",
+      "evidence": "缴费工资下限2520元、上限44265元"
+    },
+    {
+      "id": "sz-injury-base-2026",
+      "title": "2026年深圳工伤保险缴费基数上限答复",
+      "publisher": "深圳市人力资源和社会保障局",
+      "url": "https://www.sz.gov.cn/hdjlpt/detail?pid=3376279",
+      "publishedAt": "2026-03-10",
+      "verifiedAt": "2026-09-15",
+      "evidence": "用人单位工伤保险缴费基数无上限"
+    },
+    {
+      "id": "gz-medical-rule",
+      "title": "关于广州市职工医疗保险和生育保险筹资标准的通知",
+      "publisher": "广州市医疗保障局等",
+      "url": "https://www.gz.gov.cn/gfxwj/sbmgfxwj/gzsylbzj/content/mpost_8689834.html",
+      "publishedAt": "2022-12-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "医保单位6%、个人2%，基数为上上年全口径工资60%至300%"
+    },
+    {
+      "id": "gz-medical-budget-2026",
+      "title": "2026年广州市本级政府预算公开",
+      "publisher": "广州市人民政府",
+      "url": "https://www.gz.gov.cn/attachment/7/7970/7970897/10682364.pdf",
+      "publishedAt": "2026-02-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年单位医保费率由4.5%恢复为6%"
+    },
+    {
+      "id": "gz-wage-2024",
+      "title": "2024年广州市平均工资出炉",
+      "publisher": "广州市人民政府",
+      "url": "https://www.gz.gov.cn/zwfw/zxfw/jyfw/content/post_10339305.html",
+      "publishedAt": "2025-07-03",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2024年在岗职工年平均工资164443元"
+    },
+    {
+      "id": "gz-wage-2025",
+      "title": "2025年广州市城镇单位就业人员年平均工资情况",
+      "publisher": "广州市统计局",
+      "url": "https://tjj.gz.gov.cn/zzfwzq/tjgb/content/post_10894735.html",
+      "publishedAt": "2026-07-09",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年在岗职工年平均工资171731元"
+    },
+    {
+      "id": "gz-minimum-wage-2026",
+      "title": "关于调整我市最低工资标准的通知",
+      "publisher": "广州市人力资源和社会保障局",
+      "url": "https://rsj.gz.gov.cn/ywzt/ldgx/tzgg/content/post_10981828.html",
+      "publishedAt": "2026-08-28",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年9月起月最低工资调整为2680元"
+    },
+    {
+      "id": "zj-base-2025",
+      "title": "浙江省2025年社会保险费缴费基数上下限标准是多少？",
+      "publisher": "国家税务总局浙江省税务局",
+      "url": "https://zhejiang.chinatax.gov.cn/art/2025/12/11/art_13314_645797.html",
+      "publishedAt": "2025-12-11",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年基数上限25299元、下限4986元"
+    },
+    {
+      "id": "hz-medical-rate",
+      "title": "关于调整职工基本医疗保险（含生育保险）缴费费率的通知",
+      "publisher": "杭州市医疗保障局等",
+      "url": "https://zfgb.hangzhou.gov.cn/11/105220253/t116220253054/518112.shtml",
+      "publishedAt": "2022-11-30",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2023年起单位医保含生育费率9.5%，个人2%"
+    },
+    {
+      "id": "hz-medical-supplement",
+      "title": "杭州市基本医疗保障办法（2025年修订）",
+      "publisher": "杭州市人民政府",
+      "url": "https://zfgb.hangzhou.gov.cn/upload/default/bigfile/2025/10/15/20251015_ec3d3e35772bc2a066570411d334c03f.pdf",
+      "publishedAt": "2025-10-15",
+      "verifiedAt": "2026-09-15",
+      "evidence": "大病保险个人每年48元，从医保个人账户扣缴"
+    },
+    {
+      "id": "zj-unemployment-baseline",
+      "title": "关于调整失业保险费率有关问题的通知",
+      "publisher": "浙江省人力资源和社会保障厅等",
+      "url": "https://zhejiang.chinatax.gov.cn/art/2015/1/15/art_8410_12307.html",
+      "publishedAt": "2015-01-15",
+      "verifiedAt": "2026-09-15",
+      "evidence": "基础费率2%，单位1.5%、个人0.5%"
+    },
+    {
+      "id": "zj-unemployment-expiry-2026",
+      "title": "关于市十四届人大六次会议富阳27号建议的答复",
+      "publisher": "国家税务总局杭州市税务局",
+      "url": "https://zhejiang.chinatax.gov.cn/art/2026/5/6/art_13129_654020.html",
+      "publishedAt": "2026-05-06",
+      "verifiedAt": "2026-09-15",
+      "evidence": "全国1%优惠费率已于2025年末截止且无延续规定"
+    },
+    {
+      "id": "national-pension-rate",
+      "title": "企业职工基本养老保险全国统筹热点问答",
+      "publisher": "庄河市人民政府",
+      "url": "https://www.dlzh.gov.cn/html/newsShow.html?cid=703&id=30368",
+      "publishedAt": "2023-12-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "全国统一单位16%、职工个人8%"
+    },
+    {
+      "id": "national-injury-rate",
+      "title": "企业开办常见问题：工伤保险缴费比例",
+      "publisher": "浙江省人力资源和社会保障厅",
+      "url": "https://rlsbt.zj.gov.cn/attach/0/76d7f66fc1d744f1b4bad76f63b48727.pdf",
+      "publishedAt": "2024-05-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "八类行业基准费率0.2%至1.9%"
+    },
+    {
+      "id": "sc-base-2026",
+      "title": "四川2026年度社保缴费基数公布",
+      "publisher": "中国就业网（人力资源和社会保障部）",
+      "url": "https://chinajob.mohrss.gov.cn/h5/c/2026-09-11/602828.shtml",
+      "publishedAt": "2026-09-11",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2026年养老、失业、工伤基数4699至23493元"
+    },
+    {
+      "id": "sc-unemployment-baseline",
+      "title": "关于阶段性降低失业保险费率的通知",
+      "publisher": "四川省人力资源和社会保障厅、四川省财政厅",
+      "url": "https://www.ndrc.gov.cn/xwdt/ztzl/gdqjcbzc/sichuan/201801/t20180119_1209759.html",
+      "publishedAt": "2018-01-19",
+      "verifiedAt": "2026-09-15",
+      "evidence": "基础费率单位1.5%、个人0.5%"
+    },
+    {
+      "id": "sc-unemployment-expiry",
+      "title": "关于延续实施失业保险援企稳岗政策的通知",
+      "publisher": "四川省人力资源和社会保障厅等",
+      "url": "https://www.sc.gov.cn/zfgbdb/AppendixPath/UserDataFiles/2024-17.pdf",
+      "publishedAt": "2024-08-01",
+      "verifiedAt": "2026-09-15",
+      "evidence": "0.6%/0.4%优惠费率执行至2025年12月31日"
+    },
+    {
+      "id": "cd-medical-base-2025",
+      "title": "关于2025年度职工医疗保险缴费有关问题的通知",
+      "publisher": "成都市医疗保障局等",
+      "url": "https://cds.sczwfw.gov.cn/col/col15396/index.html?uid=9387",
+      "publishedAt": "2025-09-30",
+      "verifiedAt": "2026-09-15",
+      "evidence": "2025年10月起职工医保基数4588至22938元"
+    },
+    {
+      "id": "cd-medical-rate",
+      "title": "用人单位参加医疗保险缴费比例官方问答",
+      "publisher": "成都市医疗保障局",
+      "url": "https://cds.sczwfw.gov.cn/col/col15396/index.html?uid=9387",
+      "publishedAt": "2025-04-08",
+      "verifiedAt": "2026-09-15",
+      "evidence": "单位8.3%含生育和大病互助，个人2%"
+    },
+    {
+      "id": "cd-social-rate",
+      "title": "关于贯彻四川省降低社会保险费率实施办法有关事项的通知",
+      "publisher": "成都市人民政府办公厅",
+      "url": "https://cds.sczwfw.gov.cn/module/download/downfile.jsp?classid=0%26filename=35cf65978ed84a21898085c8ef21b282.pdf",
+      "publishedAt": "2019-05-23",
+      "verifiedAt": "2026-09-15",
+      "evidence": "养老单位16%；各险种按全口径工资核定上下限"
+    }
+  ],
+  "baseRules": [
+    {
+      "id": "sh-base-2026-h1",
+      "city": "上海",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-base-2025"
+      ],
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 7460,
+      "upper": 37302,
+      "note": "按本人上年月平均工资性收入申报"
+    },
+    {
+      "id": "sh-base-2026-h2",
+      "city": "上海",
+      "effectiveFrom": "2026-07-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-base-2026"
+      ],
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 7546,
+      "upper": 37731,
+      "note": "按本人上年月平均工资性收入申报"
+    },
+    {
+      "id": "bj-base-2026-h1",
+      "city": "北京",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-base-2025"
+      ],
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 7162,
+      "upper": 35811
+    },
+    {
+      "id": "bj-base-2026-h2",
+      "city": "北京",
+      "effectiveFrom": "2026-07-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-base-2026"
+      ],
+      "insurances": [
+        "pension",
+        "medical",
+        "unemployment",
+        "injury",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 7270,
+      "upper": 36348
+    },
+    {
+      "id": "sz-pension-base-2026-h1",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-pension-base-2025"
+      ],
+      "insurances": [
+        "pension",
+        "localPension"
+      ],
+      "basis": "salary",
+      "lower": 4775,
+      "upper": 27549,
+      "note": "广东2026养老基数尚未发布，仅覆盖上一社保年度"
+    },
+    {
+      "id": "sz-medical-base-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sz-medical-2026",
+        "sz-medical-rule"
+      ],
+      "insurances": [
+        "medical",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 6727,
+      "upper": 33633
+    },
+    {
+      "id": "sz-unemployment-base-2026-h1",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sz-unemployment-base-2025"
+      ],
+      "insurances": [
+        "unemployment"
+      ],
+      "basis": "salary",
+      "lower": 2520,
+      "upper": 44265,
+      "note": "2026社保年度上限尚未发布，仅覆盖上一社保年度"
+    },
+    {
+      "id": "sz-injury-base-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sz-injury-base-2026"
+      ],
+      "insurances": [
+        "injury"
+      ],
+      "basis": "salary",
+      "lower": 0,
+      "upper": null,
+      "note": "按本单位职工工资总额申报，官方答复明确无上限"
+    },
+    {
+      "id": "gz-pension-base-2026-h1",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-pension-base-2025"
+      ],
+      "insurances": [
+        "pension"
+      ],
+      "basis": "salary",
+      "lower": 5510,
+      "upper": 27549,
+      "note": "广东2026养老基数尚未发布，仅覆盖上一社保年度"
+    },
+    {
+      "id": "gz-medical-base-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-medical-rule",
+        "gz-wage-2024"
+      ],
+      "insurances": [
+        "medical",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 6234,
+      "upper": 31170,
+      "note": "按2024年本市全口径月平均工资10390元的60%和300%计算"
+    },
+    {
+      "id": "gz-unemployment-base-2026-h1",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-06-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-unemployment-baseline",
+        "gz-wage-2024"
+      ],
+      "insurances": [
+        "unemployment"
+      ],
+      "basis": "salary",
+      "lower": 2500,
+      "upper": 41112,
+      "note": "上限按2024年在岗职工月平均工资取整后乘300%"
+    },
+    {
+      "id": "gz-unemployment-base-2026-jul-aug",
+      "city": "广州",
+      "effectiveFrom": "2026-07-01",
+      "effectiveTo": "2026-08-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-unemployment-baseline",
+        "gz-wage-2025"
+      ],
+      "insurances": [
+        "unemployment"
+      ],
+      "basis": "salary",
+      "lower": 2500,
+      "upper": 42933,
+      "note": "上限按2025年在岗职工月平均工资取整后乘300%"
+    },
+    {
+      "id": "gz-unemployment-base-2026-sep-dec",
+      "city": "广州",
+      "effectiveFrom": "2026-09-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-unemployment-baseline",
+        "gz-wage-2025",
+        "gz-minimum-wage-2026"
+      ],
+      "insurances": [
+        "unemployment"
+      ],
+      "basis": "salary",
+      "lower": 2680,
+      "upper": 42933,
+      "note": "下限随2026年9月最低工资调整"
+    },
+    {
+      "id": "gz-injury-base-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-injury-rate"
+      ],
+      "insurances": [
+        "injury"
+      ],
+      "basis": "salary",
+      "lower": 0,
+      "upper": null,
+      "note": "按用人单位职工工资总额申报"
+    },
+    {
+      "id": "hz-medical-supplement-base-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "hz-medical-supplement"
+      ],
+      "insurances": [
+        "medicalSupplement"
+      ],
+      "basis": "none",
+      "note": "大病保险个人账户定额划转项目"
+    },
+    {
+      "id": "cd-three-insurance-base-2026",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sc-base-2026"
+      ],
+      "insurances": [
+        "pension",
+        "unemployment",
+        "injury"
+      ],
+      "basis": "salary",
+      "lower": 4699,
+      "upper": 23493
+    },
+    {
+      "id": "cd-medical-base-2026-jan-sep",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-09-30",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "cd-medical-base-2025"
+      ],
+      "insurances": [
+        "medical",
+        "maternity"
+      ],
+      "basis": "salary",
+      "lower": 4588,
+      "upper": 22938,
+      "note": "成都2026年度医保新基数尚未发布，10月后不自动延长"
+    }
+  ],
+  "rateRules": [
+    {
+      "id": "sh-pension-rate-2026",
+      "city": "上海",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-personal-rates-2026",
+        "sh-employer-rates"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "sh-medical-rate-2026-jan-feb",
+      "city": "上海",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-02-28",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-medical-2025"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.09,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ],
+      "note": "单位9%中含生育保险及地方附加医疗保险"
+    },
+    {
+      "id": "sh-medical-rate-2026-mar-dec",
+      "city": "上海",
+      "effectiveFrom": "2026-03-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-medical-2026"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.09,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ],
+      "note": "单位9%中含生育保险及地方附加医疗保险"
+    },
+    {
+      "id": "sh-unemployment-rate-2026",
+      "city": "上海",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-unemployment-baseline",
+        "sh-unemployment-expiry",
+        "sh-personal-rates-2026"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.01,
+      "taxDeductible": true,
+      "note": "1%优惠到期后回到2016年1.5%基础费率；个人现行0.5%，单位据此为1%"
+    },
+    {
+      "id": "sh-injury-rate-2026",
+      "city": "上海",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sh-injury-2026"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.019
+      ],
+      "taxDeductible": false
+    },
+    {
+      "id": "bj-pension-rate-2026",
+      "city": "北京",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-rates-2026"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "bj-medical-rate-2026",
+      "city": "北京",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-rates-2026"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.098,
+      "personalFixed": 3,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ],
+      "note": "个人另缴每月3元大额医疗互助"
+    },
+    {
+      "id": "bj-unemployment-rate-2026",
+      "city": "北京",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-rates-2026"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.005,
+      "taxDeductible": true
+    },
+    {
+      "id": "bj-injury-rate-2026",
+      "city": "北京",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "bj-rates-2026"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.019
+      ],
+      "taxDeductible": false
+    },
+    {
+      "id": "sz-pension-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-pension-rate",
+        "national-pension-rate"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "sz-medical-tier1-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "conditions": {
+        "medicalTier": "tier1"
+      },
+      "sourceIds": [
+        "sz-medical-2026",
+        "sz-medical-rule"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.06,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ]
+    },
+    {
+      "id": "sz-medical-tier2-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "非深圳户籍普通企业在职职工",
+      "conditions": {
+        "medicalTier": "tier2",
+        "hukou": "nonlocal"
+      },
+      "sourceIds": [
+        "sz-medical-rule"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.005,
+      "employerRate": 0.015,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ]
+    },
+    {
+      "id": "sz-unemployment-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sz-unemployment-baseline",
+        "gd-unemployment-expiry"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.01,
+      "taxDeductible": true,
+      "note": "广东1%优惠到期后按深圳仍有效的1.5%基础费率"
+    },
+    {
+      "id": "sz-injury-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-injury-rate"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.014
+      ],
+      "taxDeductible": false
+    },
+    {
+      "id": "sz-local-pension-local-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "深圳户籍普通企业在职职工",
+      "conditions": {
+        "hukou": "local"
+      },
+      "sourceIds": [
+        "sz-local-pension"
+      ],
+      "insurance": "localPension",
+      "personalRate": 0,
+      "employerRate": 0.01,
+      "taxDeductible": false
+    },
+    {
+      "id": "sz-local-pension-nonlocal-rate-2026",
+      "city": "深圳",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "非深圳户籍普通企业在职职工",
+      "conditions": {
+        "hukou": "nonlocal"
+      },
+      "sourceIds": [
+        "sz-local-pension"
+      ],
+      "insurance": "localPension",
+      "personalRate": 0,
+      "employerRate": 0,
+      "taxDeductible": false,
+      "note": "非深圳户籍职工不缴地方补充养老"
+    },
+    {
+      "id": "gz-pension-rate-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-pension-rate",
+        "national-pension-rate"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "gz-medical-rate-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-medical-rule",
+        "gz-medical-budget-2026"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.06,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ]
+    },
+    {
+      "id": "gz-unemployment-rate-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gz-unemployment-baseline",
+        "gd-unemployment-expiry"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.015,
+      "employerRateRange": [
+        0.006,
+        0.015
+      ],
+      "taxDeductible": true,
+      "note": "广东1%优惠到期后按2%基础费率；单位实际费率可能按稳岗情况下浮"
+    },
+    {
+      "id": "gz-injury-rate-2026",
+      "city": "广州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "gd-injury-rate"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.014
+      ],
+      "taxDeductible": false
+    },
+    {
+      "id": "hz-pension-rate-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "national-pension-rate"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "hz-medical-rate-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "hz-medical-rate"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.095,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ],
+      "note": "单位费率含0.6%生育保险"
+    },
+    {
+      "id": "hz-unemployment-rate-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "zj-unemployment-baseline",
+        "zj-unemployment-expiry-2026"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.015,
+      "taxDeductible": true,
+      "note": "1%优惠到期后恢复浙江2%基础费率"
+    },
+    {
+      "id": "hz-injury-rate-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "national-injury-rate",
+        "zj-unemployment-expiry-2026"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.019
+      ],
+      "taxDeductible": false
+    },
+    {
+      "id": "hz-medical-supplement-rate-2026",
+      "city": "杭州",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "hz-medical-supplement"
+      ],
+      "insurance": "medicalSupplement",
+      "personalRate": 0,
+      "employerRate": 0,
+      "personalFixed": 4,
+      "taxDeductible": false,
+      "paymentSource": "medical-account",
+      "note": "每年48元从医保个人账户扣缴，不从工资再次扣除"
+    },
+    {
+      "id": "cd-pension-rate-2026",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "cd-social-rate",
+        "national-pension-rate"
+      ],
+      "insurance": "pension",
+      "personalRate": 0.08,
+      "employerRate": 0.16,
+      "taxDeductible": true
+    },
+    {
+      "id": "cd-medical-rate-2026",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "cd-medical-rate"
+      ],
+      "insurance": "medical",
+      "personalRate": 0.02,
+      "employerRate": 0.083,
+      "taxDeductible": true,
+      "includes": [
+        "maternity"
+      ],
+      "note": "单位费率合计含生育保险和大病医疗互助补充保险"
+    },
+    {
+      "id": "cd-unemployment-rate-2026",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sc-unemployment-baseline",
+        "sc-unemployment-expiry"
+      ],
+      "insurance": "unemployment",
+      "personalRate": 0.005,
+      "employerRate": 0.015,
+      "taxDeductible": true,
+      "note": "0.6%/0.4%优惠到期后恢复四川2%基础费率"
+    },
+    {
+      "id": "cd-injury-rate-2026",
+      "city": "成都",
+      "effectiveFrom": "2026-01-01",
+      "effectiveTo": "2026-12-31",
+      "population": "普通企业在职职工",
+      "sourceIds": [
+        "sc-base-2026",
+        "national-injury-rate"
+      ],
+      "insurance": "injury",
+      "personalRate": 0,
+      "employerRate": 0.002,
+      "employerRateRange": [
+        0.002,
+        0.019
+      ],
+      "taxDeductible": false
+    }
+  ]
+}

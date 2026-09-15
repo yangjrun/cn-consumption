@@ -1,3 +1,5 @@
+import type { CustomSocialContribution, SocialInsuranceKind, SocialInsuranceMonth, SocialInsuranceOptions, SocialInsuranceYear, SocialRateMode } from './lib/socialInsuranceTypes'
+
 export type Confidence = 'exact' | 'high' | 'model' | 'unknown'
 export type ViewMode = 'conservative' | 'neutral' | 'broad'
 export type EstimateMode = 'conservative' | 'central'
@@ -22,8 +24,11 @@ export type ScenarioSection = 'compare' | 'lifetime'
  */
 export interface MonthlyTaxPoint {
   month: number
-  /** 当月适用的社保缴费基数（上海 2026 年 1—6 月与 7—12 月两套上下限）。 */
+  /** 养老基数兼容字段；各险种实际基数、费率与覆盖情况见 socialInsurance。 */
   socialBase: number
+  socialInsurance: SocialInsuranceMonth
+  employerSocial: number
+  socialTaxDeduction: number
   /** 当月工资薪金预扣预缴个人所得税额。 */
   salaryIncomeTax: number
   /** 截至当月的累计已预扣个税。 */
@@ -76,6 +81,11 @@ export interface CalculatorProfile {
   socialInsuranceBase: number
   housingFundBase: number
   applyCitySocialBaseLimits: boolean
+  socialRateMode: SocialRateMode
+  socialInsuranceOptions: SocialInsuranceOptions
+  customSocialContributions?: Partial<Record<SocialInsuranceKind, CustomSocialContribution>>
+  /** Migration marker for the original Shanghai 2026 bounds. */
+  legacyShanghaiSocialBaseLimits?: boolean
   pensionRate: number
   medicalRate: number
   unemploymentRate: number
@@ -180,6 +190,9 @@ export interface AnnualMonthlyPoint {
   month: number
   grossSalary: number
   socialBase: number
+  socialInsurance: SocialInsuranceMonth
+  employerSocial: number
+  socialTaxDeduction: number
   salaryIncomeTax: number
   cumulativeIncomeTax: number
   personalSocial: number
@@ -244,6 +257,7 @@ export interface ExpenseTaxBreakdown {
 }
 
 export interface TaxResult {
+  socialInsurance: SocialInsuranceYear
   annualGross: number
   incomeTax: number
   salaryIncomeTax: number

@@ -50,6 +50,8 @@ export function ComparePage({ profile, onUseScenario }: { profile: CalculatorPro
       socialInsuranceBase: scene.salary,
       housingFundBase: scene.salary,
       applyCitySocialBaseLimits: false,
+      socialRateMode: 'custom',
+      customSocialContributions: {},
       pensionRate: socialTotal,
       medicalRate: 0,
       unemploymentRate: 0,
@@ -72,7 +74,7 @@ export function ComparePage({ profile, onUseScenario }: { profile: CalculatorPro
       <PageIntro
         stage={{ index: '03', label: '推演对比' }}
         title={<>不是“哪个城市税高”，<br />而是条件如何改变结果。</>}
-        lead="城市社保缴费基数、比例和政策会调整。这里不内置未经逐条核验的“城市默认税负”，所有差异都由你明确输入。"
+        lead="这里使用手工对比假设：社保按输入的总比例与月薪计算，不启用六城官方规则和基数上下限。切换城市标签不改变缴费口径。"
       ><div className="scenario-sync-row"><button className="text-button" onClick={() => setA(scenarioFrom(profile, '当前情景'))}>从我的年度重新同步 A</button>{onUseScenario && <button className="primary-button" onClick={() => onUseScenario(toProfile(a), '用情景 A 替换年度模型')}>用 A 情景替换我的模型</button>}</div></PageIntro>
       <section className="compare-editors"><ScenarioEditor value={a} onChange={setA} index="A" /><ScenarioEditor value={b} onChange={setB} index="B" /></section>
       <section className="compare-result">
